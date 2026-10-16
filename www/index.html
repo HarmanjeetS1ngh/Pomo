@@ -14,7 +14,12 @@
 html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;user-select:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* light theme: soft grey background, the dark-mode black (#0d0d0d) as ink, never pure white */
-:root[data-theme=light]{color-scheme:light;--bg:#ececec;--fg:#0d0d0d;--dim:#6b6b6b;--line:#d4d4d4;--f:#0d0d0d;--b:#6b6b6b;--nav:#e0e0e0;--th:#0d0d0d;--sh:rgba(0,0,0,.12);--thsh:rgba(0,0,0,.25);--don:#0d0d0d;--doff:#d6d6d6}
+:root[data-theme=light]{color-scheme:light;--bg:#ececec;--fg:#0d0d0d;--dim:#5e5e5e;--line:#d4d4d4;--f:#0d0d0d;--b:#5e5e5e;--nav:#e0e0e0;--th:#0d0d0d;--sh:rgba(0,0,0,.12);--thsh:rgba(0,0,0,.25);--don:#0d0d0d;--doff:#d6d6d6}
+/* custom themes: official palettes (dark variants). bg/fg/accent/surfaces from each theme; text pairs are all >= 4.5:1 */
+[data-theme=gruvbox]{color-scheme:dark;--bg:#282828;--fg:#ebdbb2;--dim:#a89984;--line:#504945;--f:#fabd2f;--b:#a89984;--nav:#1d2021;--th:#fabd2f;--sh:rgba(0,0,0,.5);--thsh:rgba(0,0,0,.55);--don:#ebdbb2;--doff:#3c3836}
+[data-theme=tokyo]{color-scheme:dark;--bg:#1a1b26;--fg:#c0caf5;--dim:#9aa5ce;--line:#3b4261;--f:#7aa2f7;--b:#9aa5ce;--nav:#16161e;--th:#7aa2f7;--sh:rgba(0,0,0,.5);--thsh:rgba(0,0,0,.55);--don:#c0caf5;--doff:#292e42}
+[data-theme=nord]{color-scheme:dark;--bg:#2e3440;--fg:#eceff4;--dim:#d8dee9;--line:#4c566a;--f:#88c0d0;--b:#d8dee9;--nav:#3b4252;--th:#88c0d0;--sh:rgba(0,0,0,.35);--thsh:rgba(0,0,0,.4);--don:#eceff4;--doff:#3b4252}
+[data-theme=everforest]{color-scheme:dark;--bg:#2d353b;--fg:#d3c6aa;--dim:#9da9a0;--line:#475258;--f:#a7c080;--b:#9da9a0;--nav:#232a2e;--th:#a7c080;--sh:rgba(0,0,0,.45);--thsh:rgba(0,0,0,.5);--don:#d3c6aa;--doff:#3d484d}
 button:focus-visible,input:focus-visible{outline:2px solid var(--f);outline-offset:3px}
 svg{display:block}
 #app{height:100%;display:flex;flex-direction:column;padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
@@ -89,10 +94,12 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
  #lab{position:absolute;left:0;right:0;margin:0;padding-top:16px;text-align:center;top:calc(50% + var(--rs)*.14);transform-origin:50% 0;transform:scale(calc(1/var(--s,1)));transition:opacity .3s,transform .75s cubic-bezier(.22,1,.36,1)}
 }
 #sk.h,#rs.h{visibility:hidden}
-.tg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.tg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
 .tg[hidden]{display:none}
-.tg div{aspect-ratio:1;border:1px dashed var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:11px;opacity:.7}
-.tn{font-size:12px;color:var(--dim);margin:10px 0 0}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;border-radius:14px;background:var(--bg);color:var(--fg);border:1px solid var(--line);font-size:15px;text-align:left}
+.sw::after{content:"";flex:none;width:12px;height:12px;border-radius:50%;background:var(--f)}
+.sw.on{border:2px solid var(--f);padding:13px 15px;font-weight:600}
+.sw.on::after{content:"\2713";width:auto;height:auto;border-radius:0;background:none;color:var(--f);font-weight:700;line-height:1}
 </style></head>
 <body><div id="app">
 <section class="view on" id="vt"><div id="stage"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
@@ -105,7 +112,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 <div class="sl"><span class="lb" data-ic="coffee">Break</span><span id="bv"></span></div><input type="range" id="br" min="1" max="30" step="1"><div class="ticks" id="tb"></div>
 <div class="sl"><span class="lb" data-ic="target">Daily goal</span><span id="gv"></span></div><input type="range" id="gr" min="1" max="12" step="0.5"><div class="ticks" id="tg"></div>
 <div class="grp" style="margin-top:36px"><h2 data-ic="palette">Appearance</h2><div class="chips" id="tm"><button class="chip" data-t="dark">Dark</button><button class="chip" data-t="light">Light</button><button class="chip" data-t="custom">Themes</button></div>
-<div class="tg" id="thg" hidden><div>Theme 1</div><div>Theme 2</div><div>Theme 3</div><div>Theme 4</div></div><p class="tn" id="tn" hidden>Custom themes are coming soon.</p></div>
+<div class="tg" id="thg" hidden><button class="sw" data-c="gruvbox" data-theme="gruvbox" aria-pressed="false">Gruvbox</button><button class="sw" data-c="tokyo" data-theme="tokyo" aria-pressed="false">Tokyo Night</button><button class="sw" data-c="nord" data-theme="nord" aria-pressed="false">Nord</button><button class="sw" data-c="everforest" data-theme="everforest" aria-pressed="false">Everforest</button></div></div>
 </section>
 <nav id="nav"><button data-v="vt" data-ic="timer" class="on" aria-label="Timer"><span>Timer</span></button><button data-v="vs" data-ic="chart" aria-label="Stats"><span>Stats</span></button><button data-v="vg" data-ic="settings" aria-label="Settings"><span>Settings</span></button></nav>
 </div>
@@ -209,19 +216,22 @@ function sets(){
  document.querySelectorAll("#chips .chip").forEach(c=>c.onclick=()=>{hap("tap");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});
  SL.forEach(([id,k,min,max,bp,f])=>{const el=$("#"+id);el.value=S[k];el.lv=+el.value;el.style.setProperty("--k",(el.value-min)/(max-min));$("#"+id.replace("r","v")).textContent=f(S[k])})}
 function apply(){pause();S.rem=dur(S.mode);save();sets();render()}
-// theme: dark | light | custom (4 slots, not built yet, so custom falls back to dark)
+// theme: dark | light | custom (gruvbox, tokyo, nord, everforest)
+const TH=["gruvbox","tokyo","nord","everforest"];
 let DC=["#fff","#262626"];
 function theme(){
- const t=S.theme==="light"?"light":"dark",h=document.documentElement;
- h.dataset.theme=t;const c=getComputedStyle(h);
+ const t=S.theme==="light"?"light":S.theme==="custom"?(TH.includes(S.ct)?S.ct:"gruvbox"):"dark",h=document.documentElement;
+ h.dataset.theme=t;const c=getComputedStyle(h),bg=c.getPropertyValue("--bg").trim();
  DC=[c.getPropertyValue("--don").trim(),c.getPropertyValue("--doff").trim()];
- document.querySelectorAll('meta[name=theme-color]').forEach(m=>m.content=c.getPropertyValue("--bg").trim());
- document.querySelectorAll('meta[name=color-scheme]').forEach(m=>m.content=t);
+ document.querySelectorAll('meta[name=theme-color]').forEach(m=>m.content=bg);
+ document.querySelectorAll('meta[name=color-scheme]').forEach(m=>m.content=t==="light"?"light":"dark");
  document.querySelectorAll("#tm .chip").forEach(b=>b.classList.toggle("on",b.dataset.t===S.theme));
- $("#thg").hidden=$("#tn").hidden=S.theme!=="custom";
- try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PremiumHaptics;if(P&&P.theme)P.theme({t})}catch(e){}
+ document.querySelectorAll("#thg .sw").forEach(b=>{const on=b.dataset.c===t;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
+ $("#thg").hidden=S.theme!=="custom";
+ try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PremiumHaptics;if(P&&P.theme)P.theme({bg,light:t==="light"})}catch(e){}
  if(draw.n)draw(draw.n,true)}
 document.querySelectorAll("#tm .chip").forEach(b=>b.onclick=()=>{if(S.theme===b.dataset.t)return;hap("tap");S.theme=b.dataset.t;save();theme()});
+document.querySelectorAll("#thg .sw").forEach(b=>b.onclick=()=>{hap("tap");S.theme="custom";S.ct=b.dataset.c;save();theme()});
 theme();
 sets();
 if(S.running&&S.end<=Date.now())finish(true);else if(S.running)lock();

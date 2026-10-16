@@ -18,9 +18,12 @@ public class PremiumHapticsPlugin extends Plugin {
   /** Matches the Android status/navigation bars to the in-app theme. */
   @PluginMethod(returnType = PluginMethod.RETURN_NONE)
   public void theme(PluginCall call) {
-    final boolean light = "light".equals(call.getString("t", "dark"));
+    final boolean light = Boolean.TRUE.equals(call.getBoolean("light", false));
+    int parsed = 0xFF0D0D0D;
+    try { parsed = android.graphics.Color.parseColor(call.getString("bg", "#0d0d0d")); } catch (Exception ignored) {}
+    final int color = parsed;
     getActivity().runOnUiThread(() -> {
-      if (getActivity() instanceof MainActivity) ((MainActivity) getActivity()).setLight(light);
+      if (getActivity() instanceof MainActivity) ((MainActivity) getActivity()).setBars(color, light);
     });
   }
 

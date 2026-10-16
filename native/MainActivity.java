@@ -12,10 +12,12 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+  private int barColor = 0xFF0D0D0D;
   private boolean light = false;
 
   // Called from the web layer (PremiumHaptics.theme) so system bars follow the in-app theme.
-  public void setLight(boolean l) {
+  public void setBars(int color, boolean l) {
+    barColor = color;
     light = l;
     applyBars();
   }
@@ -44,7 +46,7 @@ public class MainActivity extends BridgeActivity {
   private void applyBars() {
     Window w = getWindow();
     boolean land = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-    int bg = light ? 0xFFECECEC : 0xFF0D0D0D;
+    int bg = barColor;
     w.setBackgroundDrawable(new ColorDrawable(bg));
     w.setStatusBarColor(bg);
     w.setNavigationBarColor(bg);
