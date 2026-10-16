@@ -8,7 +8,7 @@
 
 <style>
 :root{color-scheme:dark;--bg:#0d0d0d;--fg:#fff;--dim:#7a7a7a;--line:#242424;--f:#fff;--b:#8a8a8a;
- --rs:max(200px,min(92vw,420px,calc(100dvh - 285px)));
+ --rs:max(200px,min(calc(100vw - 56px),420px,calc(100dvh - 285px)));
  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;user-select:none}
@@ -84,6 +84,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
  .view{padding:20px 28px}
  #vt{flex-direction:row;gap:clamp(24px,6vw,64px)}
  #ctl{flex-direction:column;gap:14px;min-width:120px}
+ #lab{position:absolute;left:0;right:0;margin:0;text-align:center;top:calc(50% + var(--rs)*.14 + 16px)}
 }
 #sk.h{visibility:hidden}
 </style></head>
@@ -145,7 +146,7 @@ document.addEventListener("click",e=>{if(S.running){e.stopPropagation();hap("off
 function center(){
  const r=$("#ring"),b=$("#stage").getBoundingClientRect();
  if(!b.width)return;
- const ls=matchMedia("(orientation:landscape)").matches,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight-20)/(b.width*.28+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
+ const ls=matchMedia("(orientation:landscape)").matches,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(b.width*.14+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
  r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);draw.k=s}
 let rz;const relayout=()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
 addEventListener("resize",relayout);addEventListener("orientationchange",()=>setTimeout(relayout,150));
