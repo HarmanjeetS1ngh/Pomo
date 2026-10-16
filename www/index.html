@@ -26,6 +26,8 @@ svg{display:block}
 .view{flex:1;display:none;min-height:0;overflow-y:auto;padding:24px 28px}
 .view.on{display:flex;flex-direction:column}
 #vs>*,#vg>*{width:100%;max-width:560px;margin-left:auto;margin-right:auto}
+#vg>*,#vs>*{flex:none}
+#vg{padding-bottom:32px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 
 /* timer view */
 #vt{align-items:center;justify-content:center;gap:28px;overflow:visible}
@@ -68,17 +70,17 @@ h2{font-weight:300;font-size:15px;color:var(--dim);margin:6px 0 14px}
 .sl{display:flex;justify-content:space-between;align-items:center;margin:16px 0 6px;font-size:15px}
 .sl #fv,.sl #bv,.sl #gv{font-variant-numeric:tabular-nums;color:var(--dim)}
 
-/* sliders */
-input[type=range]{-webkit-appearance:none;appearance:none;display:block;width:100%;height:28px;margin:0;background:transparent;
- --p:calc(11px + (100% - 22px)*var(--k,0))}
-input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:linear-gradient(to right,var(--f) var(--p),var(--line) var(--p))}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--th);margin-top:-9px;box-shadow:0 1px 5px var(--thsh);transition:transform .15s}
-input[type=range]:active::-webkit-slider-thumb{transform:scale(1.12)}
-input[type=range]::-moz-range-track{height:4px;border-radius:4px;background:var(--line)}
-input[type=range]::-moz-range-progress{height:4px;border-radius:4px;background:var(--f)}
-input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;background:var(--th)}
+/* sliders: thick pill track, rounded-rectangle thumb */
+input[type=range]{-webkit-appearance:none;appearance:none;display:block;width:100%;height:36px;margin:0;background:transparent;
+ --p:calc(7px + (100% - 14px)*var(--k,0));--rm:var(--line);--rm:color-mix(in srgb,var(--f) 32%,transparent)}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:linear-gradient(to right,var(--f) var(--p),var(--rm) var(--p))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:32px;border-radius:5px;background:var(--f);margin-top:-11px;box-shadow:0 1px 5px var(--thsh);transition:transform .15s}
+input[type=range]:active::-webkit-slider-thumb{transform:scaleX(.85)}
+input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:var(--rm)}
+input[type=range]::-moz-range-progress{height:10px;border-radius:5px;background:var(--f)}
+input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radius:5px;background:var(--f)}
 .ticks{position:relative;height:30px;margin-top:-2px}
-.ticks i{position:absolute;top:0;width:0;left:calc(11px + (100% - 22px)*var(--k))}
+.ticks i{position:absolute;top:0;width:0;left:calc(7px + (100% - 14px)*var(--k))}
 .ticks i::before{content:"";position:absolute;left:-1px;top:0;width:2px;height:6px;border-radius:1px;background:var(--dim);opacity:.6}
 .ticks b{position:absolute;top:10px;left:0;transform:translateX(-50%);font-size:11px;font-weight:400;color:var(--dim);font-variant-numeric:tabular-nums}
 
@@ -96,10 +98,17 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 #sk.h,#rs.h{visibility:hidden}
 .tg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
 .tg[hidden]{display:none}
-.sw{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;border-radius:14px;background:var(--bg);color:var(--fg);border:1px solid var(--line);font-size:15px;text-align:left}
-.sw::after{content:"";flex:none;width:12px;height:12px;border-radius:50%;background:var(--f)}
-.sw.on{border:2px solid var(--f);padding:13px 15px;font-weight:600}
-.sw.on::after{content:"\2713";width:auto;height:auto;border-radius:0;background:none;color:var(--f);font-weight:700;line-height:1}
+.tg3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tc{position:relative;display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:12px 10px;border-radius:14px;background:var(--cb,var(--bg));color:var(--cf,var(--fg));border:2px solid var(--line);text-align:left;min-width:0}
+.tc.on{border-color:var(--f)}
+.tn{display:flex;align-items:center;gap:6px;font-size:14px;opacity:.85;max-width:100%;white-space:nowrap}
+.tn svg{width:16px;height:16px;flex:none}
+.dots{display:flex}
+.dots i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(128,128,128,.45);margin-left:-4px}
+.dots i:first-child{margin-left:0}
+.ck{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:var(--f);color:var(--bg);display:flex;align-items:center;justify-content:center;transform:scale(0);transition:transform .2s}
+.ck svg{width:12px;height:12px;stroke-width:3}
+.tc.on .ck{transform:scale(1)}
 </style></head>
 <body><div id="app">
 <section class="view on" id="vt"><div id="stage"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
@@ -111,8 +120,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 <div class="sl"><span class="lb" data-ic="timer">Focus</span><span id="fv"></span></div><input type="range" id="fr" min="5" max="120" step="5"><div class="ticks" id="tf"></div>
 <div class="sl"><span class="lb" data-ic="coffee">Break</span><span id="bv"></span></div><input type="range" id="br" min="1" max="30" step="1"><div class="ticks" id="tb"></div>
 <div class="sl"><span class="lb" data-ic="target">Daily goal</span><span id="gv"></span></div><input type="range" id="gr" min="1" max="12" step="0.5"><div class="ticks" id="tg"></div>
-<div class="grp" style="margin-top:36px"><h2 data-ic="palette">Appearance</h2><div class="chips" id="tm"><button class="chip" data-t="dark">Dark</button><button class="chip" data-t="light">Light</button><button class="chip" data-t="custom">Themes</button></div>
-<div class="tg" id="thg" hidden><button class="sw" data-c="gruvbox" data-theme="gruvbox" aria-pressed="false">Gruvbox</button><button class="sw" data-c="tokyo" data-theme="tokyo" aria-pressed="false">Tokyo Night</button><button class="sw" data-c="nord" data-theme="nord" aria-pressed="false">Nord</button><button class="sw" data-c="everforest" data-theme="everforest" aria-pressed="false">Everforest</button></div></div>
+<div class="grp" style="margin-top:36px"><h2 data-ic="palette">Appearance</h2><div class="tg3" id="tm"></div>
+<div class="tg" id="thg" hidden></div></div></div>
 </section>
 <nav id="nav"><button data-v="vt" data-ic="timer" class="on" aria-label="Timer"><span>Timer</span></button><button data-v="vs" data-ic="chart" aria-label="Stats"><span>Stats</span></button><button data-v="vg" data-ic="settings" aria-label="Settings"><span>Settings</span></button></nav>
 </div>
@@ -134,6 +143,9 @@ const IC={
  coffee:'<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>',
  target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
  palette:'<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+ moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+ check:'<path d="M20 6 9 17l-5-5"/>',
  layers:'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>'};
 document.querySelectorAll("[data-ic]").forEach(e=>e.insertAdjacentHTML("afterbegin",`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="24" height="24">${IC[e.dataset.ic]}</svg>`));
 
@@ -218,20 +230,28 @@ function sets(){
 function apply(){pause();S.rem=dur(S.mode);save();sets();render()}
 // theme: dark | light | custom (gruvbox, tokyo, nord, everforest)
 const TH=["gruvbox","tokyo","nord","everforest"];
+const PAL={dark:["Dark","moon",["#0d0d0d","#151515","#242424","#7a7a7a","#fff","#8a8a8a"]],light:["Light","sun",["#ececec","#e0e0e0","#d4d4d4","#5e5e5e","#0d0d0d","#8a8a8a"]],
+ custom:["Themes","palette",["#282828","#1a1b26","#2e3440","#2d353b","#fabd2f","#7aa2f7","#88c0d0","#a7c080"],1],
+ gruvbox:["Gruvbox","palette",["#282828","#3c3836","#504945","#a89984","#ebdbb2","#fabd2f"]],tokyo:["Tokyo Night","palette",["#1a1b26","#292e42","#3b4261","#9aa5ce","#c0caf5","#7aa2f7"]],
+ nord:["Nord","palette",["#2e3440","#3b4252","#4c566a","#d8dee9","#eceff4","#88c0d0"]],everforest:["Everforest","palette",["#2d353b","#3d484d","#475258","#9da9a0","#d3c6aa","#a7c080"]]};
+const sv=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const card=(id,at)=>{const [n,i,c,m]=PAL[id];return `<button class="tc" data-${at}="${id}" style="--cb:${m?"var(--bg)":c[0]};--cf:${m?"var(--fg)":c[4]}"><span class="tn">${sv(i)}${n}</span><span class="dots">${(m?c.slice(4):[...new Set(c)]).map(x=>`<i style="background:${x}"></i>`).join("")}</span><span class="ck">${sv("check")}</span></button>`};
+$("#tm").innerHTML=["dark","light","custom"].map(i=>card(i,"t")).join("");
+$("#thg").innerHTML=TH.map(i=>card(i,"c")).join("");
 let DC=["#fff","#262626"];
 function theme(){
  const t=S.theme==="light"?"light":S.theme==="custom"?(TH.includes(S.ct)?S.ct:"gruvbox"):"dark",h=document.documentElement;
  h.dataset.theme=t;const c=getComputedStyle(h),bg=c.getPropertyValue("--bg").trim();
- DC=[c.getPropertyValue("--don").trim(),c.getPropertyValue("--doff").trim()];
+ DC=[c.getPropertyValue("--f").trim(),c.getPropertyValue("--doff").trim()];
  document.querySelectorAll('meta[name=theme-color]').forEach(m=>m.content=bg);
  document.querySelectorAll('meta[name=color-scheme]').forEach(m=>m.content=t==="light"?"light":"dark");
- document.querySelectorAll("#tm .chip").forEach(b=>b.classList.toggle("on",b.dataset.t===S.theme));
- document.querySelectorAll("#thg .sw").forEach(b=>{const on=b.dataset.c===t;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
+ document.querySelectorAll("#tm .tc").forEach(b=>b.classList.toggle("on",b.dataset.t===S.theme));
+ document.querySelectorAll("#thg .tc").forEach(b=>{const on=b.dataset.c===t;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
  $("#thg").hidden=S.theme!=="custom";
  try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PremiumHaptics;if(P&&P.theme)P.theme({bg,light:t==="light"})}catch(e){}
  if(draw.n)draw(draw.n,true)}
-document.querySelectorAll("#tm .chip").forEach(b=>b.onclick=()=>{if(S.theme===b.dataset.t)return;hap("tap");S.theme=b.dataset.t;save();theme()});
-document.querySelectorAll("#thg .sw").forEach(b=>b.onclick=()=>{hap("tap");S.theme="custom";S.ct=b.dataset.c;save();theme()});
+document.querySelectorAll("#tm .tc").forEach(b=>b.onclick=()=>{if(S.theme===b.dataset.t)return;hap("tap");S.theme=b.dataset.t;save();theme()});
+document.querySelectorAll("#thg .tc").forEach(b=>b.onclick=()=>{hap("tap");S.theme="custom";S.ct=b.dataset.c;save();theme()});
 theme();
 sets();
 if(S.running&&S.end<=Date.now())finish(true);else if(S.running)lock();
