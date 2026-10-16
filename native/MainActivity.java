@@ -12,6 +12,14 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+  private boolean light = false;
+
+  // Called from the web layer (PremiumHaptics.theme) so system bars follow the in-app theme.
+  public void setLight(boolean l) {
+    light = l;
+    applyBars();
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     registerPlugin(PremiumHapticsPlugin.class);
@@ -36,9 +44,10 @@ public class MainActivity extends BridgeActivity {
   private void applyBars() {
     Window w = getWindow();
     boolean land = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-    w.setBackgroundDrawable(new ColorDrawable(0xFF0D0D0D));
-    w.setStatusBarColor(0xFF0D0D0D);
-    w.setNavigationBarColor(0xFF0D0D0D);
+    int bg = light ? 0xFFECECEC : 0xFF0D0D0D;
+    w.setBackgroundDrawable(new ColorDrawable(bg));
+    w.setStatusBarColor(bg);
+    w.setNavigationBarColor(bg);
     if (Build.VERSION.SDK_INT >= 28) {
       WindowManager.LayoutParams lp = w.getAttributes();
       lp.layoutInDisplayCutoutMode = Build.VERSION.SDK_INT >= 30
@@ -47,6 +56,8 @@ public class MainActivity extends BridgeActivity {
       w.setAttributes(lp);
     }
     WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, w.getDecorView());
+    ic.setAppearanceLightStatusBars(light);
+    ic.setAppearanceLightNavigationBars(light);
     ic.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     if (land) ic.hide(WindowInsetsCompat.Type.systemBars());
     else ic.show(WindowInsetsCompat.Type.systemBars());

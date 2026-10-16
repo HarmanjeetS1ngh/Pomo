@@ -7,12 +7,14 @@
 <title>Focus</title>
 
 <style>
-:root{color-scheme:dark;--bg:#0d0d0d;--fg:#fff;--dim:#7a7a7a;--line:#242424;--f:#fff;--b:#8a8a8a;
+:root{color-scheme:dark;--bg:#0d0d0d;--fg:#fff;--dim:#7a7a7a;--line:#242424;--f:#fff;--b:#8a8a8a;--nav:#151515;--th:#fff;--sh:rgba(0,0,0,.5);--thsh:rgba(0,0,0,.55);--don:#fff;--doff:#262626;
  --rs:max(200px,min(calc(100vw - 56px),420px,calc(100dvh - 285px)));
  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;user-select:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+/* light theme: soft grey background, the dark-mode black (#0d0d0d) as ink, never pure white */
+:root[data-theme=light]{color-scheme:light;--bg:#ececec;--fg:#0d0d0d;--dim:#6b6b6b;--line:#d4d4d4;--f:#0d0d0d;--b:#6b6b6b;--nav:#e0e0e0;--th:#0d0d0d;--sh:rgba(0,0,0,.12);--thsh:rgba(0,0,0,.25);--don:#0d0d0d;--doff:#d6d6d6}
 button:focus-visible,input:focus-visible{outline:2px solid var(--f);outline-offset:3px}
 svg{display:block}
 #app{height:100%;display:flex;flex-direction:column;padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
@@ -37,7 +39,7 @@ svg{display:block}
 .running #lab{opacity:.5}
 
 /* nav */
-nav{display:flex;gap:6px;margin:0 16px 12px;padding:6px;background:#151515;border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+nav{display:flex;gap:6px;margin:0 16px 12px;padding:6px;background:var(--nav);border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 24px var(--sh)}
 nav button{flex:1;color:var(--dim);padding:10px 0 9px;font-size:11px;letter-spacing:.02em;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:14px;transition:color .2s,background-color .2s}
 nav button svg{width:24px;height:24px;stroke-width:1.6;transition:stroke-width .2s}
 nav button.on{background:var(--fg);color:var(--bg);font-weight:600}
@@ -65,11 +67,11 @@ h2{font-weight:300;font-size:15px;color:var(--dim);margin:6px 0 14px}
 input[type=range]{-webkit-appearance:none;appearance:none;display:block;width:100%;height:28px;margin:0;background:transparent;
  --p:calc(11px + (100% - 22px)*var(--k,0))}
 input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:linear-gradient(to right,var(--f) var(--p),var(--line) var(--p))}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;margin-top:-9px;box-shadow:0 1px 5px rgba(0,0,0,.55);transition:transform .15s}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--th);margin-top:-9px;box-shadow:0 1px 5px var(--thsh);transition:transform .15s}
 input[type=range]:active::-webkit-slider-thumb{transform:scale(1.12)}
 input[type=range]::-moz-range-track{height:4px;border-radius:4px;background:var(--line)}
 input[type=range]::-moz-range-progress{height:4px;border-radius:4px;background:var(--f)}
-input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;background:#fff}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;background:var(--th)}
 .ticks{position:relative;height:30px;margin-top:-2px}
 .ticks i{position:absolute;top:0;width:0;left:calc(11px + (100% - 22px)*var(--k))}
 .ticks i::before{content:"";position:absolute;left:-1px;top:0;width:2px;height:6px;border-radius:1px;background:var(--dim);opacity:.6}
@@ -87,6 +89,10 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
  #lab{position:absolute;left:0;right:0;margin:0;padding-top:16px;text-align:center;top:calc(50% + var(--rs)*.14);transform-origin:50% 0;transform:scale(calc(1/var(--s,1)));transition:opacity .3s,transform .75s cubic-bezier(.22,1,.36,1)}
 }
 #sk.h,#rs.h{visibility:hidden}
+.tg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.tg[hidden]{display:none}
+.tg div{aspect-ratio:1;border:1px dashed var(--line);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:11px;opacity:.7}
+.tn{font-size:12px;color:var(--dim);margin:10px 0 0}
 </style></head>
 <body><div id="app">
 <section class="view on" id="vt"><div id="stage"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
@@ -95,6 +101,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 <section class="view" id="vs"></section>
 <section class="view" id="vg">
 <div class="grp"><h2 data-ic="layers">Presets</h2><div class="chips" id="chips"></div></div>
+<div class="grp"><h2 data-ic="palette">Appearance</h2><div class="chips" id="tm"><button class="chip" data-t="dark">Dark</button><button class="chip" data-t="light">Light</button><button class="chip" data-t="custom">Themes</button></div>
+<div class="tg" id="tg" hidden><div>Theme 1</div><div>Theme 2</div><div>Theme 3</div><div>Theme 4</div></div><p class="tn" id="tn" hidden>Custom themes are coming soon.</p></div>
 <div class="sl"><span class="lb" data-ic="timer">Focus</span><span id="fv"></span></div><input type="range" id="fr" min="5" max="120" step="5"><div class="ticks" id="tf"></div>
 <div class="sl"><span class="lb" data-ic="coffee">Break</span><span id="bv"></span></div><input type="range" id="br" min="1" max="30" step="1"><div class="ticks" id="tb"></div>
 <div class="sl"><span class="lb" data-ic="target">Daily goal</span><span id="gv"></span></div><input type="range" id="gr" min="1" max="12" step="0.5"><div class="ticks" id="tg"></div>
@@ -103,7 +111,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 </div>
 <script>
 const $=s=>document.querySelector(s);
-let S={f:25,b:5,goal:4,days:{},ses:{},mode:"f",rem:1500,running:false,end:0,seg:0};
+let S={f:25,b:5,goal:4,days:{},ses:{},mode:"f",theme:"dark",rem:1500,running:false,end:0,seg:0};
 try{Object.assign(S,JSON.parse(localStorage.getItem("focus1")||"{}"))}catch(e){}
 const save=()=>{try{localStorage.setItem("focus1",JSON.stringify(S))}catch(e){}};
 const dur=m=>(m==="f"?S.f:S.b)*60;
@@ -117,6 +125,7 @@ const IC={
  settings:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
  coffee:'<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>',
  target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+ palette:'<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
  layers:'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>'};
 document.querySelectorAll("[data-ic]").forEach(e=>e.insertAdjacentHTML("afterbegin",`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="24" height="24">${IC[e.dataset.ic]}</svg>`));
 
@@ -159,7 +168,7 @@ function draw(t,f){
  const d=(window.devicePixelRatio||1)*(draw.k||1);cv.width=Math.round(W*d);cv.height=Math.round(H*d);cx.setTransform(d,0,0,d,0,0);
  const cp=W/25,p=cp/2.6,r=p*.42;let col=0;
  for(const ch of t){const rows=GL[ch].split(","),w=rows[0].length;
-  for(let y=0;y<7;y++)for(let x=0;x<w;x++){cx.fillStyle=rows[y][x]==="1"?"#fff":"#262626";
+  for(let y=0;y<7;y++)for(let x=0;x<w;x++){cx.fillStyle=rows[y][x]==="1"?DC[0]:DC[1];
    for(let i=0;i<2;i++)for(let j=0;j<2;j++){cx.beginPath();cx.arc((col+x)*cp+i*p+p/2,y*cp+j*p+p/2,r,0,6.2832);cx.fill()}}
   col+=w+1}
 }
@@ -199,6 +208,20 @@ function sets(){
  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{hap("tap");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});
  SL.forEach(([id,k,min,max,bp,f])=>{const el=$("#"+id);el.value=S[k];el.lv=+el.value;el.style.setProperty("--k",(el.value-min)/(max-min));$("#"+id.replace("r","v")).textContent=f(S[k])})}
 function apply(){pause();S.rem=dur(S.mode);save();sets();render()}
+// theme: dark | light | custom (4 slots, not built yet, so custom falls back to dark)
+let DC=["#fff","#262626"];
+function theme(){
+ const t=S.theme==="light"?"light":"dark",h=document.documentElement;
+ h.dataset.theme=t;const c=getComputedStyle(h);
+ DC=[c.getPropertyValue("--don").trim(),c.getPropertyValue("--doff").trim()];
+ document.querySelectorAll('meta[name=theme-color]').forEach(m=>m.content=c.getPropertyValue("--bg").trim());
+ document.querySelectorAll('meta[name=color-scheme]').forEach(m=>m.content=t);
+ document.querySelectorAll("#tm .chip").forEach(b=>b.classList.toggle("on",b.dataset.t===S.theme));
+ $("#tg").hidden=$("#tn").hidden=S.theme!=="custom";
+ try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PremiumHaptics;if(P&&P.theme)P.theme({t})}catch(e){}
+ if(draw.n)draw(draw.n,true)}
+document.querySelectorAll("#tm .chip").forEach(b=>b.onclick=()=>{if(S.theme===b.dataset.t)return;hap("tap");S.theme=b.dataset.t;save();theme()});
+theme();
 sets();
 if(S.running&&S.end<=Date.now())finish(true);else if(S.running)lock();
 render();

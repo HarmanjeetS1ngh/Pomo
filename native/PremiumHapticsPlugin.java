@@ -15,6 +15,15 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 @CapacitorPlugin(name = "PremiumHaptics")
 public class PremiumHapticsPlugin extends Plugin {
 
+  /** Matches the Android status/navigation bars to the in-app theme. */
+  @PluginMethod(returnType = PluginMethod.RETURN_NONE)
+  public void theme(PluginCall call) {
+    final boolean light = "light".equals(call.getString("t", "dark"));
+    getActivity().runOnUiThread(() -> {
+      if (getActivity() instanceof MainActivity) ((MainActivity) getActivity()).setLight(light);
+    });
+  }
+
   @PluginMethod(returnType = PluginMethod.RETURN_NONE)
   public void play(PluginCall call) {
     final String t = call.getString("t", "step");
