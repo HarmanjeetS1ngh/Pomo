@@ -128,7 +128,7 @@ function hap(t){
   if(P)P.play({t});else if(navigator.vibrate)navigator.vibrate(t==="step"?6:10)}catch(e){}}
 
 let ac,wl;
-function beep(){try{ac=ac||new AudioContext();[0,.25,.5].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=660;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.2,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+.2);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.2)});navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}
+function beep(){try{ac=ac||new AudioContext();[0,.25,.5,1.2,1.45,1.7,2.4,2.65,2.9].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=660;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.2,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+.2);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.2)});navigator.vibrate&&navigator.vibrate([200,100,200,100,200,600,200,100,200,100,200,600,200,100,200,100,200])}catch(e){}}
 async function lock(){try{if(S.running&&navigator.wakeLock)wl=await navigator.wakeLock.request("screen")}catch(e){}}
 function credit(to){if(S.mode!=="f")return;const ms=Math.max(0,Math.min(to,S.end)-S.seg),k=key();S.days[k]=(S.days[k]||0)+ms/1000}
 function pause(){if(!S.running)return;const n=Date.now();credit(n);S.rem=Math.max(1,Math.ceil((S.end-n)/1000));S.running=false;try{wl&&wl.release()}catch(e){}save();render()}
@@ -181,7 +181,7 @@ function stats(){
  const k=key(),td=S.days[k]||0,g=S.goal*3600;let rows="",tot=0;
  for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);const s=S.days[key(d)]||0;if(i<7)tot+=s;
   rows+=`<div class="row"><span class="mut">${i?d.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"}):"Today"}</span><div class="bar"><i style="width:${Math.min(100,s/g*100)}%"></i></div><span class="t">${s?fmt(s):"–"}</span></div>`}
- $("#vs").innerHTML=`<h2>Today</h2><div class="big">${fmt(td)}</div><div class="bar"><i style="width:${Math.min(100,td/g*100)}%"></i></div><div class="mut">Goal ${S.goal}h · ${S.ses[k]||0} sessions</div>
+ $("#vs").innerHTML=`<h2>Today</h2><div class="big">${fmt(td)}</div><div class="bar"><i style="width:${Math.min(100,td/g*100)}%"></i></div><div class="mut">Goal ${S.goal}h · ${S.ses[k]||0} ${S.ses[k]===1?"session":"sessions"}</div>
  <h2 style="margin-top:34px">Last 7 days: ${fmt(tot)} total, ${fmt(tot/7)} per day</h2>${rows}`}
 
 // settings. [input id, state key, min, max, breakpoint step, label, ticks id]
