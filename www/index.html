@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0d"><meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Focus</title>
+
+<style>
+:root{color-scheme:dark;--bg:#0d0d0d;--fg:#fff;--dim:#7a7a7a;--line:#242424;--f:#fff;--b:#8a8a8a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;user-select:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--f);outline-offset:3px}
+#app{height:100%;display:flex;flex-direction:column}
+.view{flex:1;display:none;min-height:0;overflow-y:auto;padding:24px 28px}
+.view.on{display:flex;flex-direction:column}
+#vt{align-items:center;justify-content:center;gap:28px;overflow:hidden}
+.ring{position:relative;width:min(92vw,420px);aspect-ratio:1;cursor:pointer}
+.ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:2}
+#tr{stroke:var(--line)}#pr{stroke:var(--f);stroke-linecap:round;transition:stroke-dashoffset .4s linear,stroke .3s}
+.b #pr{stroke:var(--b)}
+#time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+#lab{font-size:14px;color:var(--dim);margin-top:16px}
+#cv{width:100%;aspect-ratio:25/7;display:block}
+.paused #time{opacity:.55}
+#ctl{display:flex;gap:28px;align-items:center;min-height:56px}
+#go{font-size:18px;padding:14px 38px;border:1px solid var(--dim);border-radius:99px}
+.sm{color:var(--dim);font-size:15px;padding:12px 6px}
+.running #ctl,.running nav{visibility:hidden}
+.running #lab{opacity:.5}
+nav{display:flex;justify-content:space-around;padding:8px 12px 14px;border-top:1px solid var(--line)}
+nav button{color:var(--dim);padding:12px 16px;font-size:15px}
+nav button.on{color:var(--fg)}
+h2{font-weight:300;font-size:15px;color:var(--dim);margin:6px 0 14px}
+.big{font-size:56px;font-weight:200;letter-spacing:-.02em}
+.bar{height:3px;background:var(--line);border-radius:3px;overflow:hidden;margin:12px 0 6px}
+.bar i{display:block;height:100%;background:var(--f);border-radius:3px}
+.mut{color:var(--dim);font-size:14px}
+.row{display:grid;grid-template-columns:84px 1fr 62px;gap:12px;align-items:center;padding:9px 0;font-size:14px}
+.row .t{text-align:right;font-variant-numeric:tabular-nums}
+.row .bar{margin:0}
+.grp{margin-bottom:30px}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);border-radius:99px;padding:10px 18px;font-size:15px;color:var(--dim)}
+.chip.on{border-color:var(--f);color:var(--fg)}
+.sl{display:flex;justify-content:space-between;margin:18px 0 8px;font-size:15px}
+input[type=range]{width:100%;accent-color:var(--f);height:28px}
+</style></head>
+<body><div id="app">
+<section class="view on" id="vt"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
+
+<div id="time"><canvas id="cv"></canvas><span id="lab">Focus</span></div></div>
+<div id="ctl"><button class="sm" id="rs">Reset</button><button id="go">Start</button><button class="sm" id="sk">Skip</button></div></section>
+<section class="view" id="vs"></section>
+<section class="view" id="vg">
+<div class="grp"><h2>Presets</h2><div class="chips" id="chips"></div></div>
+<div class="sl"><span>Focus</span><span id="fv"></span></div><input type="range" id="fr" min="1" max="120" step="1">
+<div class="sl"><span>Break</span><span id="bv"></span></div><input type="range" id="br" min="1" max="30" step="1">
+<div class="sl"><span>Daily goal</span><span id="gv"></span></div><input type="range" id="gr" min="1" max="12" step="0.5">
+</section>
+<nav id="nav"><button data-v="vt" class="on">Timer</button><button data-v="vs">Stats</button><button data-v="vg">Settings</button></nav>
+</div>
+<script>
+const $=s=>document.querySelector(s),C=307.9;
+let S={f:25,b:5,goal:4,days:{},ses:{},mode:"f",rem:1500,running:false,end:0,seg:0};
+try{Object.assign(S,JSON.parse(localStorage.getItem("focus1")||"{}"))}catch(e){}
+const save=()=>{try{localStorage.setItem("focus1",JSON.stringify(S))}catch(e){}};
+const dur=m=>(m==="f"?S.f:S.b)*60;
+const key=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const fmt=s=>{const t=Math.round(s/60),h=t/60|0,m=t%60;return h?h+"h "+m+"m":m+"m"};
+let ac,wl;
+function beep(){try{ac=ac||new AudioContext();[0,.25,.5].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=660;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.2,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+.2);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.2)});navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}
+async function lock(){try{if(S.running&&navigator.wakeLock)wl=await navigator.wakeLock.request("screen")}catch(e){}}
+function credit(to){if(S.mode!=="f")return;const ms=Math.max(0,Math.min(to,S.end)-S.seg),k=key();S.days[k]=(S.days[k]||0)+ms/1000}
+function pause(){if(!S.running)return;const n=Date.now();credit(n);S.rem=Math.max(1,Math.ceil((S.end-n)/1000));S.running=false;try{wl&&wl.release()}catch(e){}save();render()}
+function start(){try{ac=ac||new AudioContext();ac.resume()}catch(e){}const n=Date.now();S.running=true;S.end=n+S.rem*1000;S.seg=n;lock();save();render()}
+function swap(){S.mode=S.mode==="f"?"b":"f";S.rem=dur(S.mode)}
+function finish(quiet){credit(S.end);if(S.mode==="f"){const k=key();S.ses[k]=(S.ses[k]||0)+1}S.running=false;swap();try{wl&&wl.release()}catch(e){}if(!quiet)beep();save();render()}
+function toggle(){S.running?pause():start()}
+$("#ring").onclick=toggle;$("#go").onclick=toggle;
+$("#rs").onclick=()=>{pause();S.rem=dur(S.mode);save();render()};
+$("#sk").onclick=()=>{pause();swap();save();render()};
+const cv=$("#cv"),cx=cv.getContext("2d");
+const GL={"0":"01110,10001,10011,10101,11001,10001,01110","1":"00100,01100,00100,00100,00100,00100,01110","2":"01110,10001,00001,00010,00100,01000,11111","3":"11110,00001,00001,01110,00001,00001,11110","4":"00010,00110,01010,10010,11111,00010,00010","5":"11111,10000,11110,00001,00001,10001,01110","6":"00110,01000,10000,11110,10001,10001,01110","7":"11111,00001,00010,00100,01000,01000,01000","8":"01110,10001,10001,01110,10001,10001,01110","9":"01110,10001,10001,01111,00001,00010,01100",":":"0,0,1,0,1,0,0"};
+function draw(t,f){
+ const W=cv.clientWidth,H=cv.clientHeight;if(!W||(!f&&draw.l===t))return;draw.l=t;
+ const d=window.devicePixelRatio||1;cv.width=Math.round(W*d);cv.height=Math.round(H*d);cx.setTransform(d,0,0,d,0,0);
+ const cp=W/25,p=cp/2.6,r=p*.42;let col=0;
+ for(const ch of t){const rows=GL[ch].split(","),w=rows[0].length;
+  for(let y=0;y<7;y++)for(let x=0;x<w;x++){cx.fillStyle=rows[y][x]==="1"?"#fff":"#262626";
+   for(let i=0;i<2;i++)for(let j=0;j<2;j++){cx.beginPath();cx.arc((col+x)*cp+i*p+p/2,y*cp+j*p+p/2,r,0,6.2832);cx.fill()}}
+  col+=w+1}
+}
+addEventListener("resize",()=>draw(draw.l,true));
+function render(){
+ const r=S.running?Math.max(0,Math.ceil((S.end-Date.now())/1000)):S.rem,d=dur(S.mode);
+ const t=String(r/60|0).padStart(2,"0")+":"+String(r%60).padStart(2,"0");
+ draw(t);$("#lab").textContent=S.mode==="f"?"Focus":"Break";
+ 
+ const a=$("#app");a.classList.toggle("running",S.running);a.classList.toggle("paused",!S.running&&S.rem<d);$("#vt").classList.toggle("b",S.mode==="b");
+ $("#go").textContent=S.running?"Pause":(S.rem<d?"Resume":"Start");
+ document.title=S.running?t+" · "+(S.mode==="f"?"Focus":"Break"):"Focus";
+}
+setInterval(()=>{if(S.running){if(S.end<=Date.now())finish();else render()}},250);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){lock();if(S.running&&S.end<=Date.now())finish(true);render()}});
+// views
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button,.view").forEach(e=>e.classList.remove("on"));b.classList.add("on");$("#"+b.dataset.v).classList.add("on");if(b.dataset.v==="vs")stats()});
+function stats(){
+ const k=key(),td=S.days[k]||0,g=S.goal*3600;let rows="",tot=0;
+ for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);const s=S.days[key(d)]||0;if(i<7)tot+=s;
+  rows+=`<div class="row"><span class="mut">${i?d.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"}):"Today"}</span><div class="bar"><i style="width:${Math.min(100,s/g*100)}%"></i></div><span class="t">${s?fmt(s):"–"}</span></div>`}
+ $("#vs").innerHTML=`<h2>Today</h2><div class="big">${fmt(td)}</div><div class="bar"><i style="width:${Math.min(100,td/g*100)}%"></i></div><div class="mut">Goal ${S.goal}h · ${S.ses[k]||0} sessions</div>
+ <h2 style="margin-top:34px">Last 7 days: ${fmt(tot)} total, ${fmt(tot/7)} per day</h2>${rows}`}
+// settings
+const P=[[25,5],[50,10],[90,20]];
+function sets(){
+ $("#chips").innerHTML=P.map(p=>`<button class="chip ${S.f===p[0]&&S.b===p[1]?"on":""}" data-f="${p[0]}" data-b="${p[1]}">${p[0]} / ${p[1]}</button>`).join("");
+ document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});
+ $("#fr").value=S.f;$("#br").value=S.b;$("#gr").value=S.goal;
+ $("#fv").textContent=S.f+" min";$("#bv").textContent=S.b+" min";$("#gv").textContent=S.goal+" h"}
+function apply(){pause();S.rem=dur(S.mode);save();sets();render()}
+$("#fr").oninput=e=>{S.f=+e.target.value;apply()};
+$("#br").oninput=e=>{S.b=+e.target.value;apply()};
+$("#gr").oninput=e=>{S.goal=+e.target.value;save();sets()};
+sets();
+if(S.running&&S.end<=Date.now())finish(true);else if(S.running)lock();
+render();
+</script></body></html>
