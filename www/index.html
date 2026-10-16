@@ -24,10 +24,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--f);outline-offs
 svg{display:block}
 #app{height:100%;display:flex;flex-direction:column;padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 .view{flex:1;display:none;min-height:0;overflow-y:auto;padding:24px 28px}
-.view.on{display:flex;flex-direction:column}
+.view.on{display:flex;flex-direction:column;animation:vin .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes vin{from{opacity:0;transform:translateX(var(--dx,0px))}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view.on{animation:none}}
 #vs>*,#vg>*{width:100%;max-width:560px;margin-left:auto;margin-right:auto}
 #vg>*,#vs>*{flex:none}
-#vg{padding-bottom:32px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#vg{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 
 /* timer view */
 #vt{align-items:center;justify-content:center;gap:28px;overflow:visible}
@@ -49,7 +51,11 @@ svg{display:block}
 nav{display:flex;gap:6px;margin:0 16px 12px;padding:6px;background:var(--nav);border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 24px var(--sh)}
 nav button{flex:1;color:var(--dim);padding:10px 0 9px;font-size:11px;letter-spacing:.02em;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:14px;transition:color .2s,background-color .2s}
 nav button svg{width:24px;height:24px;stroke-width:1.6;transition:stroke-width .2s}
-nav button.on{background:var(--fg);color:var(--bg);font-weight:600}
+nav button.on{color:var(--bg);font-weight:600}
+nav{position:relative}nav button{position:relative;z-index:1}
+#pill{position:absolute;left:0;top:0;z-index:0;border-radius:14px;background:var(--fg);pointer-events:none;will-change:transform}
+#pill.an{transition:transform .38s cubic-bezier(.4,0,.2,1),width .38s cubic-bezier(.4,0,.2,1),height .38s cubic-bezier(.4,0,.2,1)}
+@media (prefers-reduced-motion:reduce){#pill.an{transition:none}}
 nav button.on svg{stroke-width:2}
 
 h2{font-weight:300;font-size:15px;color:var(--dim);margin:6px 0 14px}
@@ -115,6 +121,35 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 @keyframes chu{from{transform:translateY(35%);opacity:.2}to{transform:none;opacity:1}}
 @keyframes chd{from{transform:translateY(-35%);opacity:.2}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.ch.u,.ch.d{animation:none}}
+
+/* settings cards */
+.cd{border:1px solid var(--line);border-radius:14px;background:var(--nav);padding:14px;margin-bottom:14px}
+.hd{display:flex;align-items:center;gap:12px;width:100%;text-align:left}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--f);flex:none}
+.ib svg{width:20px;height:20px;stroke-width:1.6}
+.ht{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}.ht b{font-size:17px;font-weight:600}.ht small{font-size:13px;color:var(--dim)}
+.cv{color:var(--f);display:flex;transition:transform .2s}.cv svg{width:22px;height:22px}
+.cd.cl .cv{transform:rotate(180deg)}
+.bd{display:grid;grid-template-rows:1fr;margin-top:14px;opacity:1;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1),margin-top .32s cubic-bezier(.4,0,.2,1),opacity .24s ease .08s}
+.bi{overflow:hidden;min-height:0;padding:10px;margin:-10px}
+.cd.cl .bd{grid-template-rows:0fr;margin-top:0;opacity:0;visibility:hidden;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1),margin-top .32s cubic-bezier(.4,0,.2,1),opacity .18s ease,visibility 0s .32s}
+@media (prefers-reduced-motion:reduce){.bd,.cd.cl .bd,.cv{transition:none}}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.chip{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;border-radius:9px;padding:10px 4px;color:var(--dim)}
+.chip b{font-size:16px}.chip span{font-size:12px;opacity:.85}
+.chip.on{background:var(--f);color:var(--bg)}
+.sr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px}
+.sr .lb{gap:12px;flex:1;min-width:0}.sr .ht small{font-size:12px}.stp{flex:none}
+.stp{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;background:var(--bg);overflow:hidden}
+.stp .sb{width:42px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;color:var(--f)}
+.stp .sb svg{width:20px;height:20px}.stp .sb{touch-action:manipulation;-webkit-touch-callout:none}.stp .sb:active{background:var(--line)}
+.stp>span{min-width:64px;text-align:center;font-size:16px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.sl{justify-content:flex-end;margin:0 0 4px}
+#tm{display:flex;gap:6px;padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+#tm .tc{flex:1;flex-direction:row;justify-content:center;align-items:center;gap:8px;padding:12px 6px;border:0;border-radius:9px;background:none;color:var(--dim);font-size:15px;font-weight:600}
+#tm .tc svg{width:18px;height:18px}
+#tm .tc.on{background:var(--f);color:var(--bg)}
+@media (max-width:360px){.ib{width:36px;height:36px}.ht b{font-size:16px}.stp>span{min-width:54px}.stp .sb{width:36px}.tg{grid-template-columns:1fr}}
 </style></head>
 <body><div id="app">
 <section class="view on" id="vt"><div id="stage"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
@@ -122,12 +157,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 <div id="ctl"><button class="sm" id="rs">Reset</button><button id="go">Start</button><button class="sm" id="sk">Skip</button></div></section>
 <section class="view" id="vs"></section>
 <section class="view" id="vg">
-<div class="grp"><h2 data-ic="layers">Presets</h2><div class="chips" id="chips"></div></div>
-<div class="sl"><span class="lb" data-ic="timer">Focus</span><span id="fv"></span></div><input type="range" id="fr" min="5" max="120" step="5"><div class="ticks" id="tf"></div>
-<div class="sl"><span class="lb" data-ic="coffee">Break</span><span id="bv"></span></div><input type="range" id="br" min="1" max="30" step="1"><div class="ticks" id="tb"></div>
-<div class="sl"><span class="lb" data-ic="target">Daily goal</span><span id="gv"></span></div><input type="range" id="gr" min="1" max="12" step="0.5"><div class="ticks" id="tg"></div>
-<div class="grp" style="margin-top:36px"><h2 data-ic="palette">Appearance</h2><div class="tg3" id="tm"></div>
-<div class="tg" id="thg" hidden></div></div>
+<div class="cd"><button class="hd" aria-label="Toggle Session Cycle"><span class="ib" data-ic="layers"></span><span class="ht"><b>Session Cycle</b><small>Set focus and break durations</small></span><span class="cv" data-ic="chev"></span></button><div class="bd">
+<div class="chips" id="chips"></div>
+<div class="sr"><span class="lb"><span class="ib" data-ic="timer"></span><span class="ht"><b>Focus</b><small>Deep work sessions</small></span></span><div class="stp"><button class="sb" data-k="f" data-d="-5" aria-label="Decrease focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button><span id="fv"></span><button class="sb" data-k="f" data-d="5" aria-label="Increase focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
+<div class="sr"><span class="lb"><span class="ib" data-ic="coffee"></span><span class="ht"><b>Break</b><small>Short rest</small></span></span><div class="stp"><button class="sb" data-k="b" data-d="-1" aria-label="Decrease break"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button><span id="bv"></span><button class="sb" data-k="b" data-d="1" aria-label="Increase break"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
+</div></div>
+<div class="cd"><button class="hd" aria-label="Toggle Daily goal"><span class="ib" data-ic="target"></span><span class="ht"><b>Daily goal</b><small>Set a clear focus target</small></span><span class="cv" data-ic="chev"></span></button><div class="bd">
+<div class="sl"><span id="gv"></span></div><input type="range" id="gr" min="1" max="12" step="0.5"><div class="ticks" id="tg"></div>
+</div></div>
+<div class="cd"><button class="hd" aria-label="Toggle Appearance"><span class="ib" data-ic="palette"></span><span class="ht"><b>Appearance</b><small>Choose your mood and theme</small></span><span class="cv" data-ic="chev"></span></button><div class="bd">
+<div id="tm"></div>
+<div class="tg" id="thg" hidden></div>
+</div></div>
 </section>
 <nav id="nav"><button data-v="vt" data-ic="timer" class="on" aria-label="Timer"><span>Timer</span></button><button data-v="vs" data-ic="chart" aria-label="Stats"><span>Stats</span></button><button data-v="vg" data-ic="settings" aria-label="Settings"><span>Settings</span></button></nav>
 </div>
@@ -151,7 +192,7 @@ const IC={
  palette:'<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
  moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
- check:'<path d="M20 6 9 17l-5-5"/>',
+ check:'<path d="M20 6 9 17l-5-5"/>',chev:'<path d="m18 15-6-6-6 6"/>',leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',zap:'<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',snow:'<path d="m10 20-1.25-2.5L6 18"/><path d="M10 4 8.75 6.5 6 6"/><path d="m14 20 1.25-2.5L18 18"/><path d="m14 4 1.25 2.5L18 6"/><path d="m17 21-3-6h-4"/><path d="m17 3-3 6 1.5 3"/><path d="M2 12h6.5L10 9"/><path d="m20 10-1.5 2 1.5 2"/><path d="M22 12h-6.5L14 15"/><path d="m4 10 1.5 2L4 14"/><path d="m7 21 3-6-1.5-3"/><path d="m7 3 3 6h4"/>',tree:'<path d="m17 14 3 3.3a1 1 0 0 1-.7 1.7H4.7a1 1 0 0 1-.7-1.7L7 14h-.3a1 1 0 0 1-.7-1.7L9 9h-.2A1 1 0 0 1 8 7.3L12 3l4 4.3a1 1 0 0 1-.8 1.7H15l3 3.3a1 1 0 0 1-.7 1.7H17Z"/><path d="M12 22v-3"/>',
  layers:'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>'};
 document.querySelectorAll("[data-ic]").forEach(e=>e.insertAdjacentHTML("afterbegin",`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="24" height="24">${IC[e.dataset.ic]}</svg>`));
 
@@ -211,7 +252,10 @@ setInterval(()=>{if(S.running){if(S.end<=Date.now())finish();else render()}},250
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){lock();if(S.running&&S.end<=Date.now())finish(true);render()}});
 
 // views
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{if(b.classList.contains("on"))return;hap("nav");document.querySelectorAll("nav button,.view").forEach(e=>e.classList.remove("on"));b.classList.add("on");$("#"+b.dataset.v).classList.add("on");if(b.dataset.v==="vs")stats();if(b.dataset.v==="vt")relayout()});
+const pill=document.createElement("i");pill.id="pill";$("#nav").prepend(pill);
+function place(){const a=document.querySelector("nav button.on");if(!a)return;pill.style.width=a.offsetWidth+"px";pill.style.height=a.offsetHeight+"px";pill.style.transform=`translate(${a.offsetLeft}px,${a.offsetTop}px)`}
+place();requestAnimationFrame(()=>{place();pill.classList.add("an")});addEventListener("resize",()=>{pill.classList.remove("an");place();requestAnimationFrame(()=>pill.classList.add("an"))});
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{if(b.classList.contains("on"))return;hap("nav");{const nb=[...document.querySelectorAll("nav button")];document.documentElement.style.setProperty("--dx",(nb.indexOf(b)>nb.findIndex(x=>x.classList.contains("on"))?30:-30)+"px")}document.querySelectorAll("nav button,.view").forEach(e=>e.classList.remove("on"));b.classList.add("on");place();$("#"+b.dataset.v).classList.add("on");if(b.dataset.v==="vs")stats();if(b.dataset.v==="vt")relayout()});
 function stats(){
  const k=key(),td=S.days[k]||0,g=S.goal*3600;let rows="",tot=0;
  for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);const s=S.days[key(d)]||0;if(i<7)tot+=s;
@@ -221,7 +265,7 @@ function stats(){
 
 // settings. [input id, state key, min, max, breakpoint step, label, ticks id]
 // breakpoints = labelled ticks AND the stronger haptic bump; every other step gets a light tick
-const SL=[["fr","f",5,120,15,v=>v+" min","tf"],["br","b",1,30,5,v=>v+" min","tb"],["gr","goal",1,12,1,v=>v+" h","tg"]];
+const SL=[["gr","goal",1,12,1,v=>v+" h","tg"]];
 SL.forEach(([id,k,min,max,bp,f,tid])=>{let h="";
  for(let v=Math.ceil(min/bp)*bp;v<=max;v+=bp)h+=`<i style="--k:${(v-min)/(max-min)}"><b>${v}</b></i>`;
  $("#"+tid).innerHTML=h;
@@ -234,19 +278,29 @@ function setVal(el,t,n){const o=el._t||"",up=n>=(el._n??n);el._t=t;el._n=n;if(o=
  el.innerHTML=[...t].map((c,i)=>{const p=o[o.length-(t.length-i)],ch=c===" "?"&nbsp;":c;return `<span class="ch${o&&c!==p?" "+(up?"u":"d"):""}">${ch}</span>`}).join("")}
 function sets(){
  const ck=S.f+"/"+S.b;if(sets.k!==ck){sets.k=ck;
- $("#chips").innerHTML=P.map(p=>`<button class="chip ${S.f===p[0]&&S.b===p[1]?"on":""}" data-f="${p[0]}" data-b="${p[1]}">${p[0]} / ${p[1]}</button>`).join("");
+ $("#chips").innerHTML=P.map((p,i)=>`<button class="chip ${S.f===p[0]&&S.b===p[1]?"on":""}" data-f="${p[0]}" data-b="${p[1]}"><b>${p[0]}/${p[1]}</b><span>${["Classic","Deep work","Extended"][i]}</span></button>`).join("");
  document.querySelectorAll("#chips .chip").forEach(c=>c.onclick=()=>{hap("tap");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});}
+ setVal($("#fv"),S.f+" min",S.f);setVal($("#bv"),S.b+" min",S.b);
  SL.forEach(([id,k,min,max,bp,f])=>{const el=$("#"+id);el.value=S[k];el.lv=+el.value;el.style.setProperty("--k",(el.value-min)/(max-min));setVal($("#"+id.replace("r","v")),f(S[k]),S[k])})}
+document.querySelectorAll(".bd").forEach(b=>{const w=document.createElement("div");w.className="bi";while(b.firstChild)w.appendChild(b.firstChild);b.appendChild(w)});
+document.querySelectorAll(".sb").forEach(b=>{let t,iv,n=0;
+ const go=()=>{const k=b.dataset.k,[lo,hi]=k==="f"?[5,120]:[1,30],v=Math.min(hi,Math.max(lo,S[k]+ +b.dataset.d));if(v===S[k]){hap("end");stop();return false}hap("step");S[k]=v;apply();return true};
+ const stop=()=>{clearTimeout(t);clearInterval(iv)};
+ b.onpointerdown=e=>{e.preventDefault();stop();n=0;if(!go())return;t=setTimeout(()=>{iv=setInterval(()=>{n++;go();if(n===12){clearInterval(iv);iv=setInterval(go,45)}},110)},400)};
+ ["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,stop));
+ b.oncontextmenu=e=>e.preventDefault();
+ b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
+document.querySelectorAll(".hd").forEach(h=>h.onclick=()=>{hap("tap");h.parentNode.classList.toggle("cl")});
 function apply(){pause();S.rem=dur(S.mode);save();sets();render()}
 // theme: dark | light | custom (gruvbox, tokyo, nord, everforest)
 const TH=["gruvbox","tokyo","nord","everforest"];
 const PAL={dark:["Dark","moon",["#0d0d0d","#151515","#242424","#7a7a7a","#fff","#8a8a8a"]],light:["Light","sun",["#ececec","#e0e0e0","#d4d4d4","#5e5e5e","#0d0d0d","#8a8a8a"]],
  custom:["Themes","palette",["#282828","#1a1b26","#2e3440","#2d353b","#fabd2f","#7aa2f7","#88c0d0","#a7c080"],1],
- gruvbox:["Gruvbox","palette",["#282828","#3c3836","#504945","#a89984","#ebdbb2","#fabd2f"]],tokyo:["Tokyo Night","palette",["#1a1b26","#292e42","#3b4261","#9aa5ce","#c0caf5","#7aa2f7"]],
- nord:["Nord","palette",["#2e3440","#3b4252","#4c566a","#d8dee9","#eceff4","#88c0d0"]],everforest:["Everforest","palette",["#2d353b","#3d484d","#475258","#9da9a0","#d3c6aa","#a7c080"]]};
+ gruvbox:["Gruvbox","leaf",["#282828","#3c3836","#504945","#a89984","#ebdbb2","#fabd2f"]],tokyo:["Tokyo Night","zap",["#1a1b26","#292e42","#3b4261","#9aa5ce","#c0caf5","#7aa2f7"]],
+ nord:["Nord","snow",["#2e3440","#3b4252","#4c566a","#d8dee9","#eceff4","#88c0d0"]],everforest:["Everforest","tree",["#2d353b","#3d484d","#475258","#9da9a0","#d3c6aa","#a7c080"]]};
 const sv=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
 const card=(id,at)=>{const [n,i,c,m]=PAL[id];return `<button class="tc" data-${at}="${id}" style="--cb:${m?"var(--bg)":c[0]};--cf:${m?"var(--fg)":c[4]}"><span class="tn">${sv(i)}${n}</span>${at==="c"?`<span class="dots">${[...new Set(c)].map(x=>`<i style="background:${x}"></i>`).join("")}</span>`:""}<span class="ck">${sv("check")}</span></button>`};
-$("#tm").innerHTML=["dark","light","custom"].map(i=>card(i,"t")).join("");
+$("#tm").innerHTML=["dark","light","custom"].map(i=>`<button class="tc" data-t="${i}">${sv(PAL[i][1])}${PAL[i][0]}</button>`).join("");
 $("#thg").innerHTML=TH.map(i=>card(i,"c")).join("");
 let DC=["#fff","#262626"];
 function theme(){
