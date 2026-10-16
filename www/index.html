@@ -8,7 +8,7 @@
 
 <style>
 :root{color-scheme:dark;--bg:#0d0d0d;--fg:#fff;--dim:#7a7a7a;--line:#242424;--f:#fff;--b:#8a8a8a;
- --rs:max(200px,min(92vw,420px,calc(100dvh - 270px)));
+ --rs:max(200px,min(92vw,420px,calc(100dvh - 285px)));
  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;user-select:none}
@@ -37,11 +37,11 @@ svg{display:block}
 .running #lab{opacity:.5}
 
 /* nav */
-nav{display:flex;justify-content:space-around;padding:8px 12px 10px;border-top:1px solid var(--line)}
-nav button{color:var(--dim);padding:8px 22px;font-size:11px;letter-spacing:.02em;display:flex;flex-direction:column;align-items:center;gap:4px;transition:color .2s}
-nav button svg{width:24px;height:24px;stroke-width:1.6;transition:transform .2s}
-nav button.on{color:var(--fg)}
-nav button.on svg{transform:translateY(-1px);stroke-width:2}
+nav{display:flex;gap:6px;margin:0 16px 12px;padding:6px;background:#151515;border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+nav button{flex:1;color:var(--dim);padding:10px 0 9px;font-size:11px;letter-spacing:.02em;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:14px;transition:color .2s,background-color .2s}
+nav button svg{width:24px;height:24px;stroke-width:1.6;transition:stroke-width .2s}
+nav button.on{background:var(--fg);color:var(--bg);font-weight:600}
+nav button.on svg{stroke-width:2}
 
 h2{font-weight:300;font-size:15px;color:var(--dim);margin:6px 0 14px}
 .big{font-size:56px;font-weight:200;letter-spacing:-.02em}
@@ -79,8 +79,8 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 @media (orientation:landscape){
  :root{--rs:max(160px,min(calc(100dvh - 56px),46vw,440px))}
  #app{flex-direction:row}
- nav{order:-1;flex-direction:column;justify-content:center;gap:10px;border-top:0;border-right:1px solid var(--line);padding:8px 6px}
- nav button{padding:10px 14px}
+ nav{order:-1;flex-direction:column;align-self:center;margin:0 0 0 12px}
+ nav button{flex:none;width:68px}
  .view{padding:20px 28px}
  #vt{flex-direction:row;gap:clamp(24px,6vw,64px)}
  #ctl{flex-direction:column;gap:14px;min-width:120px}
@@ -118,14 +118,12 @@ const IC={
  layers:'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>'};
 document.querySelectorAll("[data-ic]").forEach(e=>e.insertAdjacentHTML("afterbegin",`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="24" height="24">${IC[e.dataset.ic]}</svg>`));
 
-// haptics: Capacitor Haptics plugin on device, navigator.vibrate fallback.
-// "l" = light tick (every step), "m" = soft bump (breakpoint), "e" = firmer bump (min/max)
+// haptics: native PremiumHaptics plugin (system haptic effects), navigator.vibrate fallback in browsers
 let lh=0;
 function hap(t){
- const n=performance.now();if(n-lh<20)return;lh=n;
- try{const H=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Haptics;
-  if(H){t==="l"?H.selectionChanged():H.impact({style:t==="e"?"MEDIUM":"LIGHT"})}
-  else if(navigator.vibrate)navigator.vibrate(t==="l"?6:t==="m"?10:16)}catch(e){}}
+ const n=performance.now();if(n-lh<(t==="step"?30:15))return;lh=n;
+ try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PremiumHaptics;
+  if(P)P.play({t});else if(navigator.vibrate)navigator.vibrate(t==="step"?6:10)}catch(e){}}
 
 let ac,wl;
 function beep(){try{ac=ac||new AudioContext();[0,.25,.5].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=660;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.2,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+.2);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.2)});navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}
@@ -135,7 +133,7 @@ function pause(){if(!S.running)return;const n=Date.now();credit(n);S.rem=Math.ma
 function start(){try{ac=ac||new AudioContext();ac.resume()}catch(e){}const n=Date.now();S.running=true;S.end=n+S.rem*1000;S.seg=n;lock();save();render()}
 function swap(){S.mode=S.mode==="f"?"b":"f";S.rem=dur(S.mode)}
 function finish(quiet){credit(S.end);if(S.mode==="f"){const k=key();S.ses[k]=(S.ses[k]||0)+1}S.running=false;swap();try{wl&&wl.release()}catch(e){}if(!quiet)beep();save();render()}
-function toggle(){hap("m");S.running?pause():start()}
+function toggle(){hap(S.running?"off":"on");S.running?pause():start()}
 $("#ring").onclick=toggle;$("#go").onclick=toggle;
 $("#rs").onclick=()=>{pause();S.rem=dur(S.mode);save();render()};
 $("#sk").onclick=()=>{pause();swap();save();render()};
@@ -173,7 +171,7 @@ setInterval(()=>{if(S.running){if(S.end<=Date.now())finish();else render()}},250
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){lock();if(S.running&&S.end<=Date.now())finish(true);render()}});
 
 // views
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{if(b.classList.contains("on"))return;hap("l");document.querySelectorAll("nav button,.view").forEach(e=>e.classList.remove("on"));b.classList.add("on");$("#"+b.dataset.v).classList.add("on");if(b.dataset.v==="vs")stats();if(b.dataset.v==="vt")relayout()});
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{if(b.classList.contains("on"))return;hap("nav");document.querySelectorAll("nav button,.view").forEach(e=>e.classList.remove("on"));b.classList.add("on");$("#"+b.dataset.v).classList.add("on");if(b.dataset.v==="vs")stats();if(b.dataset.v==="vt")relayout()});
 function stats(){
  const k=key(),td=S.days[k]||0,g=S.goal*3600;let rows="",tot=0;
  for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);const s=S.days[key(d)]||0;if(i<7)tot+=s;
@@ -188,12 +186,12 @@ SL.forEach(([id,k,min,max,bp,f,tid])=>{let h="";
  for(let v=Math.ceil(min/bp)*bp;v<=max;v+=bp)h+=`<i style="--k:${(v-min)/(max-min)}"><b>${v}</b></i>`;
  $("#"+tid).innerHTML=h;
  $("#"+id).oninput=e=>{const el=e.target,v=+el.value;if(v===el.lv)return;el.lv=v;S[k]=v;
-  hap(v===min||v===max?"e":v%bp===0?"m":"l");
+  hap(v===min||v===max?"end":v%bp===0?"bp":"step");
   k==="goal"?(save(),sets()):apply()}});
 const P=[[25,5],[50,10],[90,20]];
 function sets(){
  $("#chips").innerHTML=P.map(p=>`<button class="chip ${S.f===p[0]&&S.b===p[1]?"on":""}" data-f="${p[0]}" data-b="${p[1]}">${p[0]} / ${p[1]}</button>`).join("");
- document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{hap("m");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});
+ document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{hap("tap");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});
  SL.forEach(([id,k,min,max,bp,f])=>{const el=$("#"+id);el.value=S[k];el.lv=+el.value;el.style.setProperty("--k",(el.value-min)/(max-min));$("#"+id.replace("r","v")).textContent=f(S[k])})}
 function apply(){pause();S.rem=dur(S.mode);save();sets();render()}
 sets();
