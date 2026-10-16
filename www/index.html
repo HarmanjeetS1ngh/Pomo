@@ -7,32 +7,42 @@
 <title>Focus</title>
 
 <style>
-:root{color-scheme:dark;--bg:#0d0d0d;--fg:#fff;--dim:#7a7a7a;--line:#242424;--f:#fff;--b:#8a8a8a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{color-scheme:dark;--bg:#0d0d0d;--fg:#fff;--dim:#7a7a7a;--line:#242424;--f:#fff;--b:#8a8a8a;
+ --rs:max(200px,min(92vw,420px,calc(100dvh - 270px)));
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;user-select:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 button:focus-visible,input:focus-visible{outline:2px solid var(--f);outline-offset:3px}
-#app{height:100%;display:flex;flex-direction:column}
+svg{display:block}
+#app{height:100%;display:flex;flex-direction:column;padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 .view{flex:1;display:none;min-height:0;overflow-y:auto;padding:24px 28px}
 .view.on{display:flex;flex-direction:column}
-#vt{align-items:center;justify-content:center;gap:28px;overflow:hidden}
-.ring{position:relative;width:min(92vw,420px);aspect-ratio:1;cursor:pointer}
-.ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
-.ring circle{fill:none;stroke-width:2}
-#tr{stroke:var(--line)}#pr{stroke:var(--f);stroke-linecap:round;transition:stroke-dashoffset .4s linear,stroke .3s}
-.b #pr{stroke:var(--b)}
-#time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-#lab{font-size:14px;color:var(--dim);margin-top:16px}
+#vs>*,#vg>*{width:100%;max-width:560px;margin-left:auto;margin-right:auto}
+
+/* timer view */
+#vt{align-items:center;justify-content:center;gap:28px;overflow:visible}
+#stage{width:var(--rs);aspect-ratio:1;flex:none}
+.ring{position:relative;width:100%;height:100%;cursor:pointer;
+ transform:translate3d(var(--dx,0px),var(--dy,0px),0);transition:transform .75s cubic-bezier(.22,1,.36,1);will-change:transform}
+#time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#lab{font-size:14px;color:var(--dim);margin-top:16px;transition:opacity .3s}
 #cv{width:100%;aspect-ratio:25/7;display:block}
 .paused #time{opacity:.55}
+#ctl,nav{transition:opacity .35s,visibility .35s}
 #ctl{display:flex;gap:28px;align-items:center;min-height:56px}
 #go{font-size:18px;padding:14px 38px;border:1px solid var(--dim);border-radius:99px}
 .sm{color:var(--dim);font-size:15px;padding:12px 6px}
-.running #ctl,.running nav{visibility:hidden}
+.running #ctl,.running nav{opacity:0;visibility:hidden}
 .running #lab{opacity:.5}
-nav{display:flex;justify-content:space-around;padding:8px 12px 14px;border-top:1px solid var(--line)}
-nav button{color:var(--dim);padding:12px 16px;font-size:15px}
+
+/* nav */
+nav{display:flex;justify-content:space-around;padding:8px 12px 10px;border-top:1px solid var(--line)}
+nav button{color:var(--dim);padding:8px 22px;font-size:11px;letter-spacing:.02em;display:flex;flex-direction:column;align-items:center;gap:4px;transition:color .2s}
+nav button svg{width:24px;height:24px;stroke-width:1.6;transition:transform .2s}
 nav button.on{color:var(--fg)}
+nav button.on svg{transform:translateY(-1px);stroke-width:2}
+
 h2{font-weight:300;font-size:15px;color:var(--dim);margin:6px 0 14px}
 .big{font-size:56px;font-weight:200;letter-spacing:-.02em}
 .bar{height:3px;background:var(--line);border-radius:3px;overflow:hidden;margin:12px 0 6px}
@@ -41,35 +51,82 @@ h2{font-weight:300;font-size:15px;color:var(--dim);margin:6px 0 14px}
 .row{display:grid;grid-template-columns:84px 1fr 62px;gap:12px;align-items:center;padding:9px 0;font-size:14px}
 .row .t{text-align:right;font-variant-numeric:tabular-nums}
 .row .bar{margin:0}
-.grp{margin-bottom:30px}
+.grp{margin-bottom:26px}
+.grp h2,.lb{display:flex;align-items:center;gap:10px}
+.lb svg{width:20px;height:20px;color:var(--dim);stroke-width:1.6;flex:none}
+.grp h2 svg{width:18px;height:18px;stroke-width:1.6}
 .chips{display:flex;gap:10px;flex-wrap:wrap}
 .chip{border:1px solid var(--line);border-radius:99px;padding:10px 18px;font-size:15px;color:var(--dim)}
 .chip.on{border-color:var(--f);color:var(--fg)}
-.sl{display:flex;justify-content:space-between;margin:18px 0 8px;font-size:15px}
-input[type=range]{width:100%;accent-color:var(--f);height:28px}
+.sl{display:flex;justify-content:space-between;align-items:center;margin:16px 0 6px;font-size:15px}
+.sl #fv,.sl #bv,.sl #gv{font-variant-numeric:tabular-nums;color:var(--dim)}
+
+/* sliders */
+input[type=range]{-webkit-appearance:none;appearance:none;display:block;width:100%;height:28px;margin:0;background:transparent;
+ --p:calc(11px + (100% - 22px)*var(--k,0))}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:linear-gradient(to right,var(--f) var(--p),var(--line) var(--p))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;margin-top:-9px;box-shadow:0 1px 5px rgba(0,0,0,.55);transition:transform .15s}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.12)}
+input[type=range]::-moz-range-track{height:4px;border-radius:4px;background:var(--line)}
+input[type=range]::-moz-range-progress{height:4px;border-radius:4px;background:var(--f)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;background:#fff}
+.ticks{position:relative;height:30px;margin-top:-2px}
+.ticks i{position:absolute;top:0;width:0;left:calc(11px + (100% - 22px)*var(--k))}
+.ticks i::before{content:"";position:absolute;left:-1px;top:0;width:2px;height:6px;border-radius:1px;background:var(--dim);opacity:.6}
+.ticks b{position:absolute;top:10px;left:0;transform:translateX(-50%);font-size:11px;font-weight:400;color:var(--dim);font-variant-numeric:tabular-nums}
+
+/* landscape: nav becomes a side rail, timer + controls sit side by side */
+@media (orientation:landscape){
+ :root{--rs:max(160px,min(calc(100dvh - 56px),46vw,440px))}
+ #app{flex-direction:row}
+ nav{order:-1;flex-direction:column;justify-content:center;gap:10px;border-top:0;border-right:1px solid var(--line);padding:8px 6px}
+ nav button{padding:10px 14px}
+ .view{padding:20px 28px}
+ #vt{flex-direction:row;gap:clamp(24px,6vw,64px)}
+ #ctl{flex-direction:column;gap:14px;min-width:120px}
+}
 </style></head>
 <body><div id="app">
-<section class="view on" id="vt"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
-
-<div id="time"><canvas id="cv"></canvas><span id="lab">Focus</span></div></div>
+<section class="view on" id="vt"><div id="stage"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
+<div id="time"><canvas id="cv"></canvas><span id="lab">Focus</span></div></div></div>
 <div id="ctl"><button class="sm" id="rs">Reset</button><button id="go">Start</button><button class="sm" id="sk">Skip</button></div></section>
 <section class="view" id="vs"></section>
 <section class="view" id="vg">
-<div class="grp"><h2>Presets</h2><div class="chips" id="chips"></div></div>
-<div class="sl"><span>Focus</span><span id="fv"></span></div><input type="range" id="fr" min="1" max="120" step="1">
-<div class="sl"><span>Break</span><span id="bv"></span></div><input type="range" id="br" min="1" max="30" step="1">
-<div class="sl"><span>Daily goal</span><span id="gv"></span></div><input type="range" id="gr" min="1" max="12" step="0.5">
+<div class="grp"><h2 data-ic="layers">Presets</h2><div class="chips" id="chips"></div></div>
+<div class="sl"><span class="lb" data-ic="timer">Focus</span><span id="fv"></span></div><input type="range" id="fr" min="5" max="120" step="5"><div class="ticks" id="tf"></div>
+<div class="sl"><span class="lb" data-ic="coffee">Break</span><span id="bv"></span></div><input type="range" id="br" min="1" max="30" step="1"><div class="ticks" id="tb"></div>
+<div class="sl"><span class="lb" data-ic="target">Daily goal</span><span id="gv"></span></div><input type="range" id="gr" min="1" max="12" step="0.5"><div class="ticks" id="tg"></div>
 </section>
-<nav id="nav"><button data-v="vt" class="on">Timer</button><button data-v="vs">Stats</button><button data-v="vg">Settings</button></nav>
+<nav id="nav"><button data-v="vt" data-ic="timer" class="on" aria-label="Timer"><span>Timer</span></button><button data-v="vs" data-ic="chart" aria-label="Stats"><span>Stats</span></button><button data-v="vg" data-ic="settings" aria-label="Settings"><span>Settings</span></button></nav>
 </div>
 <script>
-const $=s=>document.querySelector(s),C=307.9;
+const $=s=>document.querySelector(s);
 let S={f:25,b:5,goal:4,days:{},ses:{},mode:"f",rem:1500,running:false,end:0,seg:0};
 try{Object.assign(S,JSON.parse(localStorage.getItem("focus1")||"{}"))}catch(e){}
 const save=()=>{try{localStorage.setItem("focus1",JSON.stringify(S))}catch(e){}};
 const dur=m=>(m==="f"?S.f:S.b)*60;
 const key=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const fmt=s=>{const t=Math.round(s/60),h=t/60|0,m=t%60;return h?h+"h "+m+"m":m+"m"};
+
+// icons (Lucide-style, 24px grid)
+const IC={
+ timer:'<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>',
+ chart:'<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+ settings:'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+ coffee:'<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>',
+ target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+ layers:'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>'};
+document.querySelectorAll("[data-ic]").forEach(e=>e.insertAdjacentHTML("afterbegin",`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="24" height="24">${IC[e.dataset.ic]}</svg>`));
+
+// haptics: Capacitor Haptics plugin on device, navigator.vibrate fallback.
+// "l" = light tick (every step), "m" = soft bump (breakpoint), "e" = firmer bump (min/max)
+let lh=0;
+function hap(t){
+ const n=performance.now();if(n-lh<20)return;lh=n;
+ try{const H=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Haptics;
+  if(H){t==="l"?H.selectionChanged():H.impact({style:t==="e"?"MEDIUM":"LIGHT"})}
+  else if(navigator.vibrate)navigator.vibrate(t==="l"?6:t==="m"?10:16)}catch(e){}}
+
 let ac,wl;
 function beep(){try{ac=ac||new AudioContext();[0,.25,.5].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=660;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.2,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+.2);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.2)});navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}
 async function lock(){try{if(S.running&&navigator.wakeLock)wl=await navigator.wakeLock.request("screen")}catch(e){}}
@@ -78,14 +135,24 @@ function pause(){if(!S.running)return;const n=Date.now();credit(n);S.rem=Math.ma
 function start(){try{ac=ac||new AudioContext();ac.resume()}catch(e){}const n=Date.now();S.running=true;S.end=n+S.rem*1000;S.seg=n;lock();save();render()}
 function swap(){S.mode=S.mode==="f"?"b":"f";S.rem=dur(S.mode)}
 function finish(quiet){credit(S.end);if(S.mode==="f"){const k=key();S.ses[k]=(S.ses[k]||0)+1}S.running=false;swap();try{wl&&wl.release()}catch(e){}if(!quiet)beep();save();render()}
-function toggle(){S.running?pause():start()}
+function toggle(){hap("m");S.running?pause():start()}
 $("#ring").onclick=toggle;$("#go").onclick=toggle;
 $("#rs").onclick=()=>{pause();S.rem=dur(S.mode);save();render()};
 $("#sk").onclick=()=>{pause();swap();save();render()};
+
+// slide the timer to the exact centre of the screen while running (portrait + landscape)
+function center(){
+ const r=$("#ring"),b=$("#stage").getBoundingClientRect();
+ if(!b.width)return;
+ const dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
+ r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px")}
+let rz;const relayout=()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{draw(draw.l,true);center()})};
+addEventListener("resize",relayout);addEventListener("orientationchange",()=>setTimeout(relayout,150));
+
 const cv=$("#cv"),cx=cv.getContext("2d");
 const GL={"0":"01110,10001,10011,10101,11001,10001,01110","1":"00100,01100,00100,00100,00100,00100,01110","2":"01110,10001,00001,00010,00100,01000,11111","3":"11110,00001,00001,01110,00001,00001,11110","4":"00010,00110,01010,10010,11111,00010,00010","5":"11111,10000,11110,00001,00001,10001,01110","6":"00110,01000,10000,11110,10001,10001,01110","7":"11111,00001,00010,00100,01000,01000,01000","8":"01110,10001,10001,01110,10001,10001,01110","9":"01110,10001,10001,01111,00001,00010,01100",":":"0,0,1,0,1,0,0"};
 function draw(t,f){
- const W=cv.clientWidth,H=cv.clientHeight;if(!W||(!f&&draw.l===t))return;draw.l=t;
+ const W=cv.clientWidth,H=cv.clientHeight;if(!W||!t||(!f&&draw.l===t))return;draw.l=t;
  const d=window.devicePixelRatio||1;cv.width=Math.round(W*d);cv.height=Math.round(H*d);cx.setTransform(d,0,0,d,0,0);
  const cp=W/25,p=cp/2.6,r=p*.42;let col=0;
  for(const ch of t){const rows=GL[ch].split(","),w=rows[0].length;
@@ -93,37 +160,42 @@ function draw(t,f){
    for(let i=0;i<2;i++)for(let j=0;j<2;j++){cx.beginPath();cx.arc((col+x)*cp+i*p+p/2,y*cp+j*p+p/2,r,0,6.2832);cx.fill()}}
   col+=w+1}
 }
-addEventListener("resize",()=>draw(draw.l,true));
 function render(){
  const r=S.running?Math.max(0,Math.ceil((S.end-Date.now())/1000)):S.rem,d=dur(S.mode);
  const t=String(r/60|0).padStart(2,"0")+":"+String(r%60).padStart(2,"0");
  draw(t);$("#lab").textContent=S.mode==="f"?"Focus":"Break";
- 
  const a=$("#app");a.classList.toggle("running",S.running);a.classList.toggle("paused",!S.running&&S.rem<d);$("#vt").classList.toggle("b",S.mode==="b");
  $("#go").textContent=S.running?"Pause":(S.rem<d?"Resume":"Start");
  document.title=S.running?t+" · "+(S.mode==="f"?"Focus":"Break"):"Focus";
+ if(render.r!==S.running){render.r=S.running;center()}
 }
 setInterval(()=>{if(S.running){if(S.end<=Date.now())finish();else render()}},250);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){lock();if(S.running&&S.end<=Date.now())finish(true);render()}});
+
 // views
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button,.view").forEach(e=>e.classList.remove("on"));b.classList.add("on");$("#"+b.dataset.v).classList.add("on");if(b.dataset.v==="vs")stats()});
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{if(b.classList.contains("on"))return;hap("l");document.querySelectorAll("nav button,.view").forEach(e=>e.classList.remove("on"));b.classList.add("on");$("#"+b.dataset.v).classList.add("on");if(b.dataset.v==="vs")stats();if(b.dataset.v==="vt")relayout()});
 function stats(){
  const k=key(),td=S.days[k]||0,g=S.goal*3600;let rows="",tot=0;
  for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);const s=S.days[key(d)]||0;if(i<7)tot+=s;
   rows+=`<div class="row"><span class="mut">${i?d.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"}):"Today"}</span><div class="bar"><i style="width:${Math.min(100,s/g*100)}%"></i></div><span class="t">${s?fmt(s):"–"}</span></div>`}
  $("#vs").innerHTML=`<h2>Today</h2><div class="big">${fmt(td)}</div><div class="bar"><i style="width:${Math.min(100,td/g*100)}%"></i></div><div class="mut">Goal ${S.goal}h · ${S.ses[k]||0} sessions</div>
  <h2 style="margin-top:34px">Last 7 days: ${fmt(tot)} total, ${fmt(tot/7)} per day</h2>${rows}`}
-// settings
+
+// settings. [input id, state key, min, max, breakpoint step, label, ticks id]
+// breakpoints = labelled ticks AND the stronger haptic bump; every other step gets a light tick
+const SL=[["fr","f",5,120,15,v=>v+" min","tf"],["br","b",1,30,5,v=>v+" min","tb"],["gr","goal",1,12,1,v=>v+" h","tg"]];
+SL.forEach(([id,k,min,max,bp,f,tid])=>{let h="";
+ for(let v=Math.ceil(min/bp)*bp;v<=max;v+=bp)h+=`<i style="--k:${(v-min)/(max-min)}"><b>${v}</b></i>`;
+ $("#"+tid).innerHTML=h;
+ $("#"+id).oninput=e=>{const el=e.target,v=+el.value;if(v===el.lv)return;el.lv=v;S[k]=v;
+  hap(v===min||v===max?"e":v%bp===0?"m":"l");
+  k==="goal"?(save(),sets()):apply()}});
 const P=[[25,5],[50,10],[90,20]];
 function sets(){
  $("#chips").innerHTML=P.map(p=>`<button class="chip ${S.f===p[0]&&S.b===p[1]?"on":""}" data-f="${p[0]}" data-b="${p[1]}">${p[0]} / ${p[1]}</button>`).join("");
- document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});
- $("#fr").value=S.f;$("#br").value=S.b;$("#gr").value=S.goal;
- $("#fv").textContent=S.f+" min";$("#bv").textContent=S.b+" min";$("#gv").textContent=S.goal+" h"}
+ document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{hap("m");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});
+ SL.forEach(([id,k,min,max,bp,f])=>{const el=$("#"+id);el.value=S[k];el.lv=+el.value;el.style.setProperty("--k",(el.value-min)/(max-min));$("#"+id.replace("r","v")).textContent=f(S[k])})}
 function apply(){pause();S.rem=dur(S.mode);save();sets();render()}
-$("#fr").oninput=e=>{S.f=+e.target.value;apply()};
-$("#br").oninput=e=>{S.b=+e.target.value;apply()};
-$("#gr").oninput=e=>{S.goal=+e.target.value;save();sets()};
 sets();
 if(S.running&&S.end<=Date.now())finish(true);else if(S.running)lock();
 render();
