@@ -86,7 +86,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
  #ctl{flex-direction:column;gap:14px;min-width:120px}
  #lab{position:absolute;left:0;right:0;margin:0;padding-top:16px;text-align:center;top:calc(50% + var(--rs)*.14);transform-origin:50% 0;transform:scale(calc(1/var(--s,1)));transition:opacity .3s,transform .75s cubic-bezier(.22,1,.36,1)}
 }
-#sk.h{visibility:hidden}
+#sk.h,#rs.h{visibility:hidden}
 </style></head>
 <body><div id="app">
 <section class="view on" id="vt"><div id="stage"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
@@ -166,7 +166,7 @@ function draw(t,f){
 function render(){
  const r=S.running?Math.max(0,Math.ceil((S.end-Date.now())/1000)):S.rem,d=dur(S.mode);
  const t=String(r/60|0).padStart(2,"0")+":"+String(r%60).padStart(2,"0");
- draw(t);$("#sk").classList.toggle("h",S.mode!=="b");$("#lab").textContent=S.mode==="f"?"Focus":"Break";
+ draw(t);$("#sk").classList.toggle("h",S.mode!=="b");$("#rs").classList.toggle("h",S.running||S.rem>=d);$("#lab").textContent=S.mode==="f"?"Focus":"Break";
  const a=$("#app");a.classList.toggle("running",S.running);a.classList.toggle("paused",!S.running&&S.rem<d);$("#vt").classList.toggle("b",S.mode==="b");
  $("#go").textContent=S.running?"Pause":(S.rem<d?"Resume":"Start");
  document.title=S.running?t+" · "+(S.mode==="f"?"Focus":"Break"):"Focus";
