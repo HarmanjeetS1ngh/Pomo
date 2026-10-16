@@ -147,7 +147,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 .sl{justify-content:flex-end;margin:0 0 4px}
 #tm{display:flex;gap:6px;padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
 #tm .tc{flex:1;flex-direction:row;justify-content:center;align-items:center;gap:8px;padding:12px 6px;border:0;border-radius:9px;background:none;color:var(--dim);font-size:15px;font-weight:600}
-#tm .tc svg{width:18px;height:18px}
+#tm .tc svg{width:18px;height:18px;min-width:18px;flex:none}
+#tm .tc{white-space:nowrap;min-width:0}
 #tm .tc.on{background:var(--f);color:var(--bg)}
 @media (max-width:360px){.ib{width:36px;height:36px}.ht b{font-size:16px}.stp>span{min-width:54px}.stp .sb{width:36px}.tg{grid-template-columns:1fr}}
 </style></head>
