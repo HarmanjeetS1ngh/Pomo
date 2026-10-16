@@ -24,7 +24,7 @@ svg{display:block}
 #vt{align-items:center;justify-content:center;gap:28px;overflow:visible}
 #stage{width:var(--rs);aspect-ratio:1;flex:none}
 .ring{position:relative;width:100%;height:100%;cursor:pointer;
- transform:translate3d(var(--dx,0px),var(--dy,0px),0);transition:transform .75s cubic-bezier(.22,1,.36,1);will-change:transform}
+ transform:translate3d(var(--dx,0px),var(--dy,0px),0) scale(var(--s,1));transition:transform .75s cubic-bezier(.22,1,.36,1);will-change:transform}
 #time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 #lab{font-size:14px;color:var(--dim);margin-top:16px;transition:opacity .3s}
 #cv{width:100%;aspect-ratio:25/7;display:block}
@@ -84,8 +84,6 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
  .view{padding:20px 28px}
  #vt{flex-direction:row;gap:clamp(24px,6vw,64px)}
  #ctl{flex-direction:column;gap:14px;min-width:120px}
- .running .ring{position:fixed;inset:0;width:auto;height:auto;z-index:5;background:var(--bg)}
- .running #cv{width:min(96vw,calc((100dvh - 60px)*25/7))}
 }
 #sk.h{visibility:hidden}
 </style></head>
@@ -147,9 +145,9 @@ document.addEventListener("click",e=>{if(S.running){e.stopPropagation();hap("off
 function center(){
  const r=$("#ring"),b=$("#stage").getBoundingClientRect();
  if(!b.width)return;
- const fs=S.running&&matchMedia("(orientation:landscape)").matches,dx=S.running&&!fs?innerWidth/2-(b.left+b.width/2):0,dy=S.running&&!fs?innerHeight/2-(b.top+b.height/2):0;
- r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px")}
-let rz;const relayout=()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{draw(draw.n,true);center()})};
+ const ls=matchMedia("(orientation:landscape)").matches,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight-20)/(b.width*.28+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
+ r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);draw.k=s}
+let rz;const relayout=()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
 addEventListener("resize",relayout);addEventListener("orientationchange",()=>setTimeout(relayout,150));
 
 const cv=$("#cv"),cx=cv.getContext("2d");
@@ -157,7 +155,7 @@ const GL={"0":"01110,10001,10011,10101,11001,10001,01110","1":"00100,01100,00100
 function draw(t,f){
  draw.n=t;
  const W=cv.clientWidth,H=cv.clientHeight;if(!W||!t||(!f&&draw.l===t))return;draw.l=t;
- const d=window.devicePixelRatio||1;cv.width=Math.round(W*d);cv.height=Math.round(H*d);cx.setTransform(d,0,0,d,0,0);
+ const d=(window.devicePixelRatio||1)*(draw.k||1);cv.width=Math.round(W*d);cv.height=Math.round(H*d);cx.setTransform(d,0,0,d,0,0);
  const cp=W/25,p=cp/2.6,r=p*.42;let col=0;
  for(const ch of t){const rows=GL[ch].split(","),w=rows[0].length;
   for(let y=0;y<7;y++)for(let x=0;x<w;x++){cx.fillStyle=rows[y][x]==="1"?"#fff":"#262626";
