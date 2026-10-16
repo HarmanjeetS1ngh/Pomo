@@ -109,6 +109,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 .ck{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:var(--f);color:var(--bg);display:flex;align-items:center;justify-content:center;transform:scale(0);transition:transform .2s}
 .ck svg{width:12px;height:12px;stroke-width:3}
 .tc.on .ck{transform:scale(1)}
+.ch{display:inline-block;white-space:pre}
+.ch.u{animation:chu .38s cubic-bezier(.22,1,.36,1)}
+.ch.d{animation:chd .38s cubic-bezier(.22,1,.36,1)}
+@keyframes chu{from{transform:translateY(60%) scale(.9);opacity:0;filter:blur(4px)}to{transform:none;opacity:1;filter:blur(0)}}
+@keyframes chd{from{transform:translateY(-60%) scale(.9);opacity:0;filter:blur(4px)}to{transform:none;opacity:1;filter:blur(0)}}
+@media (prefers-reduced-motion:reduce){.ch.u,.ch.d{animation:none}}
 </style></head>
 <body><div id="app">
 <section class="view on" id="vt"><div id="stage"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
@@ -121,7 +127,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 <div class="sl"><span class="lb" data-ic="coffee">Break</span><span id="bv"></span></div><input type="range" id="br" min="1" max="30" step="1"><div class="ticks" id="tb"></div>
 <div class="sl"><span class="lb" data-ic="target">Daily goal</span><span id="gv"></span></div><input type="range" id="gr" min="1" max="12" step="0.5"><div class="ticks" id="tg"></div>
 <div class="grp" style="margin-top:36px"><h2 data-ic="palette">Appearance</h2><div class="tg3" id="tm"></div>
-<div class="tg" id="thg" hidden></div></div></div>
+<div class="tg" id="thg" hidden></div></div>
 </section>
 <nav id="nav"><button data-v="vt" data-ic="timer" class="on" aria-label="Timer"><span>Timer</span></button><button data-v="vs" data-ic="chart" aria-label="Stats"><span>Stats</span></button><button data-v="vg" data-ic="settings" aria-label="Settings"><span>Settings</span></button></nav>
 </div>
@@ -223,10 +229,13 @@ SL.forEach(([id,k,min,max,bp,f,tid])=>{let h="";
   hap(v===min||v===max?"end":v%bp===0?"bp":"step");
   k==="goal"?(save(),sets()):apply()}});
 const P=[[25,5],[50,10],[90,20]];
+// value text: only the characters that change roll in (up when increasing, down when decreasing)
+function setVal(el,t,n){const o=el._t||"",up=n>=(el._n??n);el._t=t;el._n=n;if(o===t)return;
+ el.innerHTML=[...t].map((c,i)=>{const p=o[o.length-(t.length-i)],ch=c===" "?"&nbsp;":c;return `<span class="ch${o&&c!==p?" "+(up?"u":"d"):""}">${ch}</span>`}).join("")}
 function sets(){
  $("#chips").innerHTML=P.map(p=>`<button class="chip ${S.f===p[0]&&S.b===p[1]?"on":""}" data-f="${p[0]}" data-b="${p[1]}">${p[0]} / ${p[1]}</button>`).join("");
  document.querySelectorAll("#chips .chip").forEach(c=>c.onclick=()=>{hap("tap");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});
- SL.forEach(([id,k,min,max,bp,f])=>{const el=$("#"+id);el.value=S[k];el.lv=+el.value;el.style.setProperty("--k",(el.value-min)/(max-min));$("#"+id.replace("r","v")).textContent=f(S[k])})}
+ SL.forEach(([id,k,min,max,bp,f])=>{const el=$("#"+id);el.value=S[k];el.lv=+el.value;el.style.setProperty("--k",(el.value-min)/(max-min));setVal($("#"+id.replace("r","v")),f(S[k]),S[k])})}
 function apply(){pause();S.rem=dur(S.mode);save();sets();render()}
 // theme: dark | light | custom (gruvbox, tokyo, nord, everforest)
 const TH=["gruvbox","tokyo","nord","everforest"];
@@ -235,7 +244,7 @@ const PAL={dark:["Dark","moon",["#0d0d0d","#151515","#242424","#7a7a7a","#fff","
  gruvbox:["Gruvbox","palette",["#282828","#3c3836","#504945","#a89984","#ebdbb2","#fabd2f"]],tokyo:["Tokyo Night","palette",["#1a1b26","#292e42","#3b4261","#9aa5ce","#c0caf5","#7aa2f7"]],
  nord:["Nord","palette",["#2e3440","#3b4252","#4c566a","#d8dee9","#eceff4","#88c0d0"]],everforest:["Everforest","palette",["#2d353b","#3d484d","#475258","#9da9a0","#d3c6aa","#a7c080"]]};
 const sv=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
-const card=(id,at)=>{const [n,i,c,m]=PAL[id];return `<button class="tc" data-${at}="${id}" style="--cb:${m?"var(--bg)":c[0]};--cf:${m?"var(--fg)":c[4]}"><span class="tn">${sv(i)}${n}</span><span class="dots">${(m?c.slice(4):[...new Set(c)]).map(x=>`<i style="background:${x}"></i>`).join("")}</span><span class="ck">${sv("check")}</span></button>`};
+const card=(id,at)=>{const [n,i,c,m]=PAL[id];return `<button class="tc" data-${at}="${id}" style="--cb:${m?"var(--bg)":c[0]};--cf:${m?"var(--fg)":c[4]}"><span class="tn">${sv(i)}${n}</span>${at==="c"?`<span class="dots">${[...new Set(c)].map(x=>`<i style="background:${x}"></i>`).join("")}</span>`:""}<span class="ck">${sv("check")}</span></button>`};
 $("#tm").innerHTML=["dark","light","custom"].map(i=>card(i,"t")).join("");
 $("#thg").innerHTML=TH.map(i=>card(i,"c")).join("");
 let DC=["#fff","#262626"];
