@@ -101,11 +101,11 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 <section class="view" id="vs"></section>
 <section class="view" id="vg">
 <div class="grp"><h2 data-ic="layers">Presets</h2><div class="chips" id="chips"></div></div>
-<div class="grp"><h2 data-ic="palette">Appearance</h2><div class="chips" id="tm"><button class="chip" data-t="dark">Dark</button><button class="chip" data-t="light">Light</button><button class="chip" data-t="custom">Themes</button></div>
-<div class="tg" id="tg" hidden><div>Theme 1</div><div>Theme 2</div><div>Theme 3</div><div>Theme 4</div></div><p class="tn" id="tn" hidden>Custom themes are coming soon.</p></div>
 <div class="sl"><span class="lb" data-ic="timer">Focus</span><span id="fv"></span></div><input type="range" id="fr" min="5" max="120" step="5"><div class="ticks" id="tf"></div>
 <div class="sl"><span class="lb" data-ic="coffee">Break</span><span id="bv"></span></div><input type="range" id="br" min="1" max="30" step="1"><div class="ticks" id="tb"></div>
 <div class="sl"><span class="lb" data-ic="target">Daily goal</span><span id="gv"></span></div><input type="range" id="gr" min="1" max="12" step="0.5"><div class="ticks" id="tg"></div>
+<div class="grp" style="margin-top:36px"><h2 data-ic="palette">Appearance</h2><div class="chips" id="tm"><button class="chip" data-t="dark">Dark</button><button class="chip" data-t="light">Light</button><button class="chip" data-t="custom">Themes</button></div>
+<div class="tg" id="thg" hidden><div>Theme 1</div><div>Theme 2</div><div>Theme 3</div><div>Theme 4</div></div><p class="tn" id="tn" hidden>Custom themes are coming soon.</p></div>
 </section>
 <nav id="nav"><button data-v="vt" data-ic="timer" class="on" aria-label="Timer"><span>Timer</span></button><button data-v="vs" data-ic="chart" aria-label="Stats"><span>Stats</span></button><button data-v="vg" data-ic="settings" aria-label="Settings"><span>Settings</span></button></nav>
 </div>
@@ -113,6 +113,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radiu
 const $=s=>document.querySelector(s);
 let S={f:25,b:5,goal:4,days:{},ses:{},mode:"f",theme:"dark",rem:1500,running:false,end:0,seg:0};
 try{Object.assign(S,JSON.parse(localStorage.getItem("focus1")||"{}"))}catch(e){}
+{const ok=(v,lo)=>Number.isFinite(v)&&v>=lo;if(!ok(S.f,5))S.f=25;if(!ok(S.b,1))S.b=5;if(!ok(S.goal,1))S.goal=4;if(S.mode!=="f"&&S.mode!=="b")S.mode="f";if(!ok(S.rem,1))S.rem=(S.mode==="f"?S.f:S.b)*60;if(S.running&&!Number.isFinite(S.end))S.running=false}
 const save=()=>{try{localStorage.setItem("focus1",JSON.stringify(S))}catch(e){}};
 const dur=m=>(m==="f"?S.f:S.b)*60;
 const key=(d=new Date())=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -205,7 +206,7 @@ SL.forEach(([id,k,min,max,bp,f,tid])=>{let h="";
 const P=[[25,5],[50,10],[90,20]];
 function sets(){
  $("#chips").innerHTML=P.map(p=>`<button class="chip ${S.f===p[0]&&S.b===p[1]?"on":""}" data-f="${p[0]}" data-b="${p[1]}">${p[0]} / ${p[1]}</button>`).join("");
- document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{hap("tap");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});
+ document.querySelectorAll("#chips .chip").forEach(c=>c.onclick=()=>{hap("tap");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});
  SL.forEach(([id,k,min,max,bp,f])=>{const el=$("#"+id);el.value=S[k];el.lv=+el.value;el.style.setProperty("--k",(el.value-min)/(max-min));$("#"+id.replace("r","v")).textContent=f(S[k])})}
 function apply(){pause();S.rem=dur(S.mode);save();sets();render()}
 // theme: dark | light | custom (4 slots, not built yet, so custom falls back to dark)
@@ -217,7 +218,7 @@ function theme(){
  document.querySelectorAll('meta[name=theme-color]').forEach(m=>m.content=c.getPropertyValue("--bg").trim());
  document.querySelectorAll('meta[name=color-scheme]').forEach(m=>m.content=t);
  document.querySelectorAll("#tm .chip").forEach(b=>b.classList.toggle("on",b.dataset.t===S.theme));
- $("#tg").hidden=$("#tn").hidden=S.theme!=="custom";
+ $("#thg").hidden=$("#tn").hidden=S.theme!=="custom";
  try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PremiumHaptics;if(P&&P.theme)P.theme({t})}catch(e){}
  if(draw.n)draw(draw.n,true)}
 document.querySelectorAll("#tm .chip").forEach(b=>b.onclick=()=>{if(S.theme===b.dataset.t)return;hap("tap");S.theme=b.dataset.t;save();theme()});
