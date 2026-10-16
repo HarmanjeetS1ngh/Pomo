@@ -19,8 +19,8 @@ public class PremiumHapticsPlugin extends Plugin {
   @PluginMethod(returnType = PluginMethod.RETURN_NONE)
   public void theme(PluginCall call) {
     final boolean light = Boolean.TRUE.equals(call.getBoolean("light", false));
-    int parsed = 0xFF0D0D0D;
-    try { parsed = android.graphics.Color.parseColor(call.getString("bg", "#0d0d0d")); } catch (Exception ignored) {}
+    int parsed = 0xFF121212;
+    try { parsed = android.graphics.Color.parseColor(call.getString("bg", "#121212")); } catch (Exception ignored) {}
     final int color = parsed;
     getActivity().runOnUiThread(() -> {
       if (getActivity() instanceof MainActivity) ((MainActivity) getActivity()).setBars(color, light);

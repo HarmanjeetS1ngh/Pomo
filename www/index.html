@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d0d0d"><meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#121212"><meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>Focus</title>
 
 <style>
-:root{color-scheme:dark;--bg:#0d0d0d;--fg:#fff;--dim:#7a7a7a;--line:#242424;--f:#fff;--b:#8a8a8a;--nav:#151515;--th:#fff;--sh:rgba(0,0,0,.5);--thsh:rgba(0,0,0,.55);--don:#fff;--doff:#262626;
+:root{color-scheme:dark;--bg:#121212;--fg:#E4E4E4;--dim:#8D8D8D;--line:#353535;--f:#E4E4E4;--b:#8D8D8D;--nav:#151515;--th:#E4E4E4;--sh:rgba(0,0,0,.5);--thsh:rgba(0,0,0,.55);--don:#E4E4E4;--doff:#2d2d2d;
  --rs:max(200px,min(calc(100vw - 56px),420px,calc(100dvh - 285px)));
  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -125,8 +125,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 /* settings cards */
 .cd{border:1px solid var(--line);border-radius:14px;background:var(--nav);padding:14px;margin-bottom:14px}
 #vg>.cd:last-child{margin-bottom:0}
-.hd{display:flex;align-items:center;gap:12px;width:100%;text-align:left}
-.ib{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--f);flex:none}
+.hd{display:flex;align-items:center;gap:12px;width:100%;padding:0;margin:0;text-align:left}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;border:0;background:color-mix(in srgb,var(--fg) 14%,var(--nav));color:var(--fg);flex:none}
 .ib svg{width:20px;height:20px;stroke-width:1.6}
 .ht{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}.ht b{font-size:17px;font-weight:600}.ht small{font-size:13px;color:var(--dim)}
 .cv{color:var(--f);display:flex;transition:transform .2s}.cv svg{width:22px;height:22px}
@@ -136,7 +136,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 .cd.cl .bd{grid-template-rows:0fr;margin-top:0;opacity:0;visibility:hidden;transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1),margin-top .32s cubic-bezier(.4,0,.2,1),opacity .18s ease,visibility 0s .32s}
 @media (prefers-reduced-motion:reduce){.bd,.cd.cl .bd,.cv{transition:none}}
 .chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
-.chip{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;border-radius:9px;padding:10px 4px;color:var(--dim)}
+.chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;border-radius:9px;padding:14px 4px;color:var(--dim)}
 .chip b{font-size:16px}.chip span{font-size:12px;opacity:.85}
 .chip.on{background:var(--f);color:var(--bg)}
 .sr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px}
@@ -162,7 +162,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 <section class="view" id="vg">
 <div class="cd"><button class="hd" aria-label="Toggle Session Cycle"><span class="ib" data-ic="layers"></span><span class="ht"><b>Session Cycle</b><small>Set focus and break durations</small></span><span class="cv" data-ic="chev"></span></button><div class="bd">
 <div class="chips" id="chips"></div>
-<div class="sr"><span class="lb"><span class="ib" data-ic="timer"></span><span class="ht"><b>Focus</b><small>Deep work sessions</small></span></span><div class="stp"><button class="sb" data-k="f" data-d="-5" aria-label="Decrease focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button><span id="fv"></span><button class="sb" data-k="f" data-d="5" aria-label="Increase focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
+<div class="sr"><span class="lb"><span class="ib" data-ic="timer"></span><span class="ht"><b>Focus</b><small>Work sessions</small></span></span><div class="stp"><button class="sb" data-k="f" data-d="-5" aria-label="Decrease focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button><span id="fv"></span><button class="sb" data-k="f" data-d="5" aria-label="Increase focus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
 <div class="sr"><span class="lb"><span class="ib" data-ic="coffee"></span><span class="ht"><b>Break</b><small>Short rest</small></span></span><div class="stp"><button class="sb" data-k="b" data-d="-1" aria-label="Decrease break"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button><span id="bv"></span><button class="sb" data-k="b" data-d="1" aria-label="Increase break"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
 </div></div>
 <div class="cd"><button class="hd" aria-label="Toggle Daily goal"><span class="ib" data-ic="target"></span><span class="ht"><b>Daily goal</b><small>Set a clear focus target</small></span><span class="cv" data-ic="chev"></span></button><div class="bd">
@@ -281,7 +281,7 @@ function setVal(el,t,n){const o=el._t||"",up=n>=(el._n??n);el._t=t;el._n=n;if(o=
  el.innerHTML=[...t].map((c,i)=>{const p=o[o.length-(t.length-i)],ch=c===" "?"&nbsp;":c;return `<span class="ch${o&&c!==p?" "+(up?"u":"d"):""}">${ch}</span>`}).join("")}
 function sets(){
  const ck=S.f+"/"+S.b;if(sets.k!==ck){sets.k=ck;
- $("#chips").innerHTML=P.map((p,i)=>`<button class="chip ${S.f===p[0]&&S.b===p[1]?"on":""}" data-f="${p[0]}" data-b="${p[1]}"><b>${p[0]}/${p[1]}</b><span>${["Classic","Deep work","Extended"][i]}</span></button>`).join("");
+ $("#chips").innerHTML=P.map((p,i)=>`<button class="chip ${S.f===p[0]&&S.b===p[1]?"on":""}" data-f="${p[0]}" data-b="${p[1]}"><b>${p[0]}/${p[1]}</b></button>`).join("");
  document.querySelectorAll("#chips .chip").forEach(c=>c.onclick=()=>{hap("tap");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});}
  setVal($("#fv"),S.f+" min",S.f);setVal($("#bv"),S.b+" min",S.b);
  SL.forEach(([id,k,min,max,bp,f])=>{const el=$("#"+id);el.value=S[k];el.lv=+el.value;el.style.setProperty("--k",(el.value-min)/(max-min));setVal($("#"+id.replace("r","v")),f(S[k]),S[k])})}
@@ -297,7 +297,7 @@ document.querySelectorAll(".hd").forEach(h=>h.onclick=()=>{hap("tap");h.parentNo
 function apply(){pause();S.rem=dur(S.mode);save();sets();render()}
 // theme: dark | light | custom (gruvbox, tokyo, nord, everforest)
 const TH=["gruvbox","tokyo","nord","everforest"];
-const PAL={dark:["Dark","moon",["#0d0d0d","#151515","#242424","#7a7a7a","#fff","#8a8a8a"]],light:["Light","sun",["#ececec","#e0e0e0","#d4d4d4","#5e5e5e","#0d0d0d","#8a8a8a"]],
+const PAL={dark:["Dark","moon",["#121212","#151515","#353535","#8D8D8D","#E4E4E4","#404040"]],light:["Light","sun",["#ececec","#e0e0e0","#d4d4d4","#5e5e5e","#0d0d0d","#8a8a8a"]],
  custom:["Themes","palette",["#282828","#1a1b26","#2e3440","#2d353b","#fabd2f","#7aa2f7","#88c0d0","#a7c080"],1],
  gruvbox:["Gruvbox","leaf",["#282828","#3c3836","#504945","#a89984","#ebdbb2","#fabd2f"]],tokyo:["Tokyo Night","zap",["#1a1b26","#292e42","#3b4261","#9aa5ce","#c0caf5","#7aa2f7"]],
  nord:["Nord","snow",["#2e3440","#3b4252","#4c566a","#d8dee9","#eceff4","#88c0d0"]],everforest:["Everforest","tree",["#2d353b","#3d484d","#475258","#9da9a0","#d3c6aa","#a7c080"]]};
@@ -305,7 +305,7 @@ const sv=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const card=(id,at)=>{const [n,i,c,m]=PAL[id];return `<button class="tc" data-${at}="${id}" style="--cb:${m?"var(--bg)":c[0]};--cf:${m?"var(--fg)":c[4]}"><span class="tn">${sv(i)}${n}</span>${at==="c"?`<span class="dots">${[...new Set(c)].map(x=>`<i style="background:${x}"></i>`).join("")}</span>`:""}<span class="ck">${sv("check")}</span></button>`};
 $("#tm").innerHTML=["dark","light","custom"].map(i=>`<button class="tc" data-t="${i}">${sv(PAL[i][1])}${PAL[i][0]}</button>`).join("");
 $("#thg").innerHTML=TH.map(i=>card(i,"c")).join("");
-let DC=["#fff","#262626"];
+let DC=["#E4E4E4","#2d2d2d"];
 function theme(){
  const t=S.theme==="light"?"light":S.theme==="custom"?(TH.includes(S.ct)?S.ct:"gruvbox"):"dark",h=document.documentElement;
  h.dataset.theme=t;const c=getComputedStyle(h),bg=c.getPropertyValue("--bg").trim();

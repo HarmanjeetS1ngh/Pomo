@@ -12,7 +12,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
-  private int barColor = 0xFF0D0D0D;
+  private int barColor = 0xFF121212;
   private boolean light = false;
 
   // Called from the web layer (PremiumHaptics.theme) so system bars follow the in-app theme.
