@@ -31,8 +31,8 @@ public class MainActivity extends BridgeActivity {
     if (hasFocus) applyBars();
   }
 
-  // Landscape: edge-to-edge, draw into the cutout area and hide status + navigation bars
-  // (swipe from an edge shows them briefly). Portrait: normal system bars.
+  // Landscape: hide status + navigation bars (swipe from an edge shows them briefly) on a dark window.
+  // Portrait: normal system bars. Window fitting is never toggled, so layout can't shift on rotation.
   private void applyBars() {
     Window w = getWindow();
     boolean land = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
@@ -46,7 +46,6 @@ public class MainActivity extends BridgeActivity {
         : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
       w.setAttributes(lp);
     }
-    WindowCompat.setDecorFitsSystemWindows(w, !land);
     WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, w.getDecorView());
     ic.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     if (land) ic.hide(WindowInsetsCompat.Type.systemBars());
