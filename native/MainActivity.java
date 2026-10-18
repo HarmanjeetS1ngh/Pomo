@@ -54,9 +54,12 @@ public class MainActivity extends BridgeActivity {
 
   // Called from the web layer: hide status + navigation bars only while the timer is running.
   public void setImmersive(boolean on) {
+    boolean was = hideBars;
     hideBars = on;
     tries = 0;
-    getWindow().getDecorView().removeCallbacks(visRun);
+    final View d = getWindow().getDecorView();
+    d.removeCallbacks(visRun);
+    if (isTablet() && was && !on) { tabletRestoreBars(d); return; }
     enforce();
   }
 
@@ -145,6 +148,22 @@ public class MainActivity extends BridgeActivity {
     boolean ok = r == null || (r.isVisible(WindowInsetsCompat.Type.statusBars()) != hideBars
       && r.isVisible(WindowInsetsCompat.Type.navigationBars()) != hideBars);
     if (!ok && tries++ < 16) d.postDelayed(visRun, 120); else tries = 0;
+  }
+
+  // Tablets only. After a rotation made while the bars were hidden, a plain show() can be ignored for
+  // the navigation bar (a second rotation fixes it). The visibility state is unreliable there, so don't
+  // check it: just run a hide -> show cycle plus the full window setup, and repeat it while it settles.
+  @SuppressWarnings("deprecation")
+  private void tabletRestoreBars(final View d) {
+    Window w = getWindow();
+    WindowCompat.getInsetsController(w, d).hide(WindowInsetsCompat.Type.systemBars());
+    d.postDelayed(() -> {
+      if (hideBars) return;
+      d.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+      applyBars(true);
+    }, 120);
+    d.postDelayed(() -> { if (!hideBars) applyBars(true); }, 450);
+    d.postDelayed(() -> { if (!hideBars) applyBars(true); }, 1000);
   }
 
   private boolean isTablet() {
