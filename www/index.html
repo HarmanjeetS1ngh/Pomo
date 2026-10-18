@@ -199,6 +199,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 #time{transition:transform .3s cubic-bezier(.22,1,.36,1)}
 #time.hold{transform:scale(.93);transition:transform .4s cubic-bezier(.3,.7,.2,1) .08s}
 #cv,#fxc{transition:opacity .16s ease,transform .22s cubic-bezier(.22,1,.36,1)}
+[data-cs=tetris] #cv.tmx{opacity:0;transform:scale(.92);transition-duration:.2s,.2s}
 #time.sw #cv,#time.sw #fxc{opacity:0;transform:scale(.92);transition-duration:.09s,.09s}
 @media (prefers-reduced-motion:reduce){#time,#time.hold,#cv,#fxc{transition:none}}
 </style></head>
@@ -471,7 +472,10 @@ function tetPal(){
   mx=(a,b,t)=>{const A=h(a),B=h(b);return"#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")};
  return tetPal.v=[f,mx(f,fg,.5),fg,mx(f,dm,.5),dm,mx(f,bg,.45),mx(fg,bg,.3)]}
 function tet(c,d,e,D,pal,off){
- const ls=LSM.matches,[cols,R]=tetLv(D,ls),pg=[cols,R];if(c===cv)c.style.setProperty("--ar",pg[0]+" / "+pg[1]);
+ const ls=LSM.matches,[cols,R]=tetLv(D,ls),pg=[cols,R];
+ if(c===cv){const lk=cols+"|"+R;if(tet.busy)return;
+  if(tet.lk&&tet.lk!==lk&&c.clientWidth&&!RM.matches){tet.busy=1;c.classList.add("tmx");setTimeout(()=>{tet.lk=lk;tet.busy=0;c.style.setProperty("--ar",pg[0]+" / "+pg[1]);c.classList.remove("tmx");tetDraw()},210);return}
+  tet.lk=lk;c.style.setProperty("--ar",pg[0]+" / "+pg[1])}
  const W=c.clientWidth,H=c.clientHeight;if(!W)return;
  const pw=Math.round(W*d),ph=Math.round(H*d);if(c.width!==pw||c.height!==ph){c.width=pw;c.height=ph}
  const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,W,H);
@@ -486,7 +490,7 @@ function tet(c,d,e,D,pal,off){
   else{if(e>0&&el>=0){const n=P[k].mr+1,u=ch/4,tr=Math.min(n*ch,(Math.floor(el/sc.tf[k]*n*ch/u)+1)*u);blk(P[k],-n*ch+tr)}break}}
  x.globalAlpha=1}
 function tprog(){const D=dur(S.mode),r=S.running?Math.max(0,(S.end-Date.now())/1000):S.rem;return[Math.min(D,Math.max(0,D-r)),D]}
-function tetDraw(){const h=!S.running&&Date.now()-(tetGo.done||0)<1400,[e,D]=h?[1,1]:tprog();
+function tetDraw(){const h=!S.running&&Date.now()-(tetGo.done||0)<1400,pd=dur(S.mode==="f"?"b":"f"),[e,D]=h?[pd,pd]:tprog();
  tet(cv,(window.devicePixelRatio||1)*(draw.k||1),e,D,tetPal(),DC[1])}
 function tetLoop(ts){
  if(S.cs!=="tetris"||!S.running||document.hidden){tetGo.on=0;return}
