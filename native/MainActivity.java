@@ -19,6 +19,7 @@ public class MainActivity extends BridgeActivity {
   private boolean light = false;
   private int iT, iB, iL, iR;
   private boolean insLand;
+  private final Runnable visRun = this::applyVisibility;
 
   private boolean isLand() {
     android.util.DisplayMetrics m = getResources().getDisplayMetrics();
@@ -68,7 +69,9 @@ public class MainActivity extends BridgeActivity {
   @Override
   public void onConfigurationChanged(Configuration c) {
     super.onConfigurationChanged(c);
-    applyBars();
+    applyBars(false);
+    getWindow().getDecorView().removeCallbacks(visRun);
+    getWindow().getDecorView().postDelayed(visRun, 450);
   }
 
   @Override
@@ -79,7 +82,8 @@ public class MainActivity extends BridgeActivity {
 
   // Landscape: hide status + navigation bars (swipe from an edge shows them briefly) on a dark window.
   // Portrait: normal system bars. Window fitting is never toggled, so layout can't shift on rotation.
-  private void applyBars() {
+  private void applyBars() { applyBars(true); }
+  private void applyBars(boolean visNow) {
     Window w = getWindow();
     boolean land = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     int bg = barColor;
@@ -95,14 +99,22 @@ public class MainActivity extends BridgeActivity {
       lp.layoutInDisplayCutoutMode = Build.VERSION.SDK_INT >= 30
         ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
         : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-      lp.rotationAnimation = WindowManager.LayoutParams.ROTATION_ANIMATION_CROSSFADE; // no grey frame / jerk on rotate
+      lp.rotationAnimation = WindowManager.LayoutParams.ROTATION_ANIMATION_ROTATE; // real rotate animation
       w.setAttributes(lp);
     }
     WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, w.getDecorView());
     ic.setAppearanceLightStatusBars(light);
     ic.setAppearanceLightNavigationBars(light);
     ic.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-    if (land) ic.hide(WindowInsetsCompat.Type.systemBars());
+    if (visNow) applyVisibility();
+  }
+
+  // Layout is edge-to-edge, so bar visibility never changes layout; doing it after the rotation
+  // animation avoids inset dispatch + relayout work while the system animation is running.
+  private void applyVisibility() {
+    Window w = getWindow();
+    WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, w.getDecorView());
+    if (isLand()) ic.hide(WindowInsetsCompat.Type.systemBars());
     else ic.show(WindowInsetsCompat.Type.systemBars());
   }
 }
