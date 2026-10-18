@@ -153,6 +153,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 #tm .tc{white-space:nowrap;min-width:min-content;flex:1 1 0;gap:6px;padding:12px 8px;font-size:clamp(12px,3.7vw,15px)}
 #tm .tc svg{width:clamp(15px,4.4vw,18px);height:clamp(15px,4.4vw,18px);min-width:0}
 #tm .tc.on{background:var(--f);color:var(--bg)}
+#tm,#chips{position:relative}#tm .tc,#chips .chip{position:relative;z-index:1;transition:color .2s}
+#tm .tc.on,#chips .chip.on{background:none}
+.sp{position:absolute;left:0;top:0;z-index:0;border-radius:9px;background:var(--f);pointer-events:none;will-change:transform}
+.sp.an{transition:transform .38s cubic-bezier(.4,0,.2,1),width .38s cubic-bezier(.4,0,.2,1),height .38s cubic-bezier(.4,0,.2,1)}
+@media (prefers-reduced-motion:reduce){.sp.an{transition:none}}
+
 @media (max-width:360px){.ib{width:36px;height:36px}.ht b{font-size:16px}.stp>span{min-width:54px}.stp .sb{width:36px}.tg{grid-template-columns:1fr}}
 
 @font-face{font-family:FlipDigits;src:url(fonts/flip-digits.woff2) format("woff2");font-weight:700;font-style:normal;font-display:block}
@@ -337,7 +343,7 @@ function setVal(el,t,n){const o=el._t||"",up=n>=(el._n??n);el._t=t;el._n=n;if(o=
 function sets(){
  const ck=S.f+"/"+S.b;if(sets.k!==ck){sets.k=ck;
  $("#chips").innerHTML=P.map((p,i)=>`<button class="chip ${S.f===p[0]&&S.b===p[1]?"on":""}" data-f="${p[0]}" data-b="${p[1]}"><b>${p[0]}/${p[1]}</b></button>`).join("");
- document.querySelectorAll("#chips .chip").forEach(c=>c.onclick=()=>{hap("tap");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});}
+ document.querySelectorAll("#chips .chip").forEach(c=>c.onclick=()=>{hap("tap");S.f=+c.dataset.f;S.b=+c.dataset.b;apply()});slider($("#chips"),true)}
  setVal($("#fv"),S.f+" min",S.f);setVal($("#bv"),S.b+" min",S.b);
  SL.forEach(([id,k,min,max,bp,f])=>{const el=$("#"+id);el.value=S[k];el.lv=+el.value;el.style.setProperty("--k",(el.value-min)/(max-min));setVal($("#"+id.replace("r","v")),f(S[k]),S[k])})}
 document.querySelectorAll(".bd").forEach(b=>{const w=document.createElement("div");w.className="bi";while(b.firstChild)w.appendChild(b.firstChild);b.appendChild(w)});
@@ -520,6 +526,7 @@ function theme(){
  document.querySelectorAll('meta[name=theme-color]').forEach(m=>m.content=bg);
  document.querySelectorAll('meta[name=color-scheme]').forEach(m=>m.content=t==="light"?"light":"dark");
  document.querySelectorAll("#tm .tc").forEach(b=>b.classList.toggle("on",b.dataset.t===S.theme));
+ slider($("#tm"),true);
  document.querySelectorAll("#thg .tc").forEach(b=>{const on=b.dataset.c===t;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
  $("#thg").hidden=S.theme!=="custom";
  try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PremiumHaptics;if(P&&P.theme)P.theme({bg,light:t==="light"})}catch(e){}
@@ -531,4 +538,11 @@ theme();
 sets();
 if(S.running&&S.end<=Date.now())finish(true);else if(S.running)lock();
 render();
+function slider(box,anim){let p=box.querySelector(":scope>.sp"),a=box.querySelector(".on");
+ if(!p){p=document.createElement("i");p.className="sp";box.prepend(p)}
+ if(!a||!a.offsetWidth){p.style.display="none";return}
+ p.style.display="";const L=box._l,n=[a.offsetLeft,a.offsetTop,a.offsetWidth,a.offsetHeight],set=v=>{p.style.width=v[2]+"px";p.style.height=v[3]+"px";p.style.transform="translate("+v[0]+"px,"+v[1]+"px)"};
+ if(anim&&L&&!matchMedia("(prefers-reduced-motion:reduce)").matches){p.classList.remove("an");set(L);void p.offsetWidth;p.classList.add("an");set(n)}else{p.classList.remove("an");set(n)}
+ box._l=n}
+["#tm","#chips"].forEach(q=>{const b=document.querySelector(q);if(b)new ResizeObserver(()=>slider(b,false)).observe(b)});
 </script></body></html>
