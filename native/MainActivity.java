@@ -20,6 +20,7 @@ public class MainActivity extends BridgeActivity {
   private int iT, iB, iL, iR;
   private boolean insLand;
   private int tries = 0;
+  private boolean rehide = false;
   private boolean hideBars = false; // bars hidden only while the timer runs
   private final Runnable visRun = this::enforce;
 
@@ -82,6 +83,7 @@ public class MainActivity extends BridgeActivity {
       // Deterministic insets: independent of whether the bars are currently shown/hidden/animating,
       // so rotation never pushes transient values (the cause of the upward jump).
       calc(insets);
+      if (rehide && insets.isVisible(WindowInsetsCompat.Type.navigationBars())) v.post(visRun);
       pushInsets();
       return WindowInsetsCompat.CONSUMED;
     });
@@ -102,7 +104,8 @@ public class MainActivity extends BridgeActivity {
       // bars visible, exactly like a rotation while paused, then hide them again.
       WindowCompat.getInsetsController(getWindow(), d).show(WindowInsetsCompat.Type.systemBars());
       tries = 0;
-      d.postDelayed(visRun, 900);
+      rehide = true;                 // hide again the instant the rebuilt bar is reported visible
+      d.postDelayed(visRun, 600);    // fallback
     } else {
       d.postDelayed(visRun, 450);
     }
@@ -148,6 +151,7 @@ public class MainActivity extends BridgeActivity {
   // Applies the wanted bar visibility, then checks the REAL state and retries until it matches.
   // (After a rotation the system can silently drop show()/hide() for the navigation bar.)
   private void enforce() {
+    rehide = false;
     View d = getWindow().getDecorView();
     Window w = getWindow();
     WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, d);
