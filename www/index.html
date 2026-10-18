@@ -154,6 +154,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 #tm .tc.on{background:var(--f);color:var(--bg)}
 @media (max-width:360px){.ib{width:36px;height:36px}.ht b{font-size:16px}.stp>span{min-width:54px}.stp .sb{width:36px}.tg{grid-template-columns:1fr}}
 
+@font-face{font-family:FlipDigits;src:url(fonts/flip-digits.woff2) format("woff2");font-weight:900;font-style:normal;font-display:block}
 /* clock styles: flip clock + long-press picker */
 #fxc{display:none}[data-cs=flip] #cv{display:none}[data-cs=flip] #fxc{display:flex}
 [data-cs=flip] #lab{top:calc(50% + var(--rs)*.176)}[data-cs=flip] .ring{will-change:auto}
@@ -163,7 +164,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 .fxd>div{position:absolute;left:0;right:0;height:50%;overflow:hidden}
 .fxu,.fxa{top:0;border-radius:2.6em 2.6em 1em 1em;background:var(--doff);background:linear-gradient(180deg,color-mix(in srgb,var(--doff) 84%,#fff),var(--doff))}
 .fxl,.fxb{top:50%;border-radius:1em 1em 2.6em 2.6em;background:var(--doff);background:linear-gradient(180deg,color-mix(in srgb,var(--doff) 93%,#000),color-mix(in srgb,var(--doff) 80%,#000))}
-.fxd i{position:absolute;left:0;right:0;height:200%;display:flex;align-items:center;justify-content:center;font:normal 900 28em/1 sans-serif-condensed,"Roboto Condensed","Arial Narrow",Arial,sans-serif;font-variant-numeric:tabular-nums;color:var(--f);-webkit-text-stroke:.025em currentColor}
+.fxd i{position:absolute;left:0;right:0;height:200%;display:flex;align-items:center;justify-content:center;font:normal 900 28em/1 FlipDigits,sans-serif-condensed,"Roboto Condensed","Arial Narrow",Arial,sans-serif;font-variant-numeric:tabular-nums;color:var(--f);-webkit-text-stroke:.012em currentColor}
 .fxu i,.fxa i{top:0}.fxu i,.fxa i{color:color-mix(in srgb,var(--f) 84%,#fff)}.fxl i,.fxb i{bottom:0}
 .fxa,.fxb{z-index:2;visibility:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .fxa{transform-origin:50% 100%}.fxb{transform-origin:50% 0;transform:rotateX(90deg)}
