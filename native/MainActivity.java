@@ -19,6 +19,7 @@ public class MainActivity extends BridgeActivity {
   private boolean light = false;
   private int iT, iB, iL, iR;
   private boolean insLand;
+  private String lastJs = "";
   private boolean hideBars = false; // bars hidden only while the timer runs
   private final Runnable visRun = this::applyVisibility;
 
@@ -33,6 +34,8 @@ public class MainActivity extends BridgeActivity {
     if (insLand != isLand()) return; // values belong to the other orientation; the next inset pass sends fresh ones
     float d = getResources().getDisplayMetrics().density;
     String js = "window.__ins&&window.__ins(" + (iT / d) + "," + (iB / d) + "," + (iL / d) + "," + (iR / d) + "," + isLand() + ")";
+    if (js.equals(lastJs)) return; // unchanged -> no web relayout (it would cut the start animation)
+    lastJs = js;
     getBridge().getWebView().evaluateJavascript(js, null);
   }
 
@@ -40,6 +43,11 @@ public class MainActivity extends BridgeActivity {
   public void setImmersive(boolean on) {
     hideBars = on;
     applyVisibility();
+    // re-assert: a show() issued right after a rotation can be dropped for the navigation bar
+    View d = getWindow().getDecorView();
+    d.removeCallbacks(visRun);
+    d.postDelayed(visRun, 300);
+    d.postDelayed(visRun, 800);
   }
 
   // Called from the web layer (PremiumHaptics.theme) so system bars follow the in-app theme.

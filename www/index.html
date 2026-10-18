@@ -291,7 +291,7 @@ matchMedia("(orientation:landscape)").addEventListener("change",()=>{const g=$("
 ["#app","#vt"].forEach(q=>{const e=document.querySelector(q);if(e)new ResizeObserver(()=>{if(S.running)relayout()}).observe(e)});
 /* native (Android) pushes system-bar insets here; window stays edge-to-edge so rotation never resizes the WebView */
 const insSet=(o,save)=>{const R=document.documentElement;for(const m of["p","l"])if(o[m])["t","b","l","r"].forEach((k,n)=>R.style.setProperty("--sa"+k+"-"+m,Math.max(0,+o[m][n]||0)+"px"));if(save)try{localStorage.setItem("focus-ins4",JSON.stringify(o))}catch(e){}};
-window.__ins=(t,b,l,r,land)=>{let o={};try{o=JSON.parse(localStorage.getItem("focus-ins4")||"{}")||{}}catch(e){}o[land?"l":"p"]=[t,b,l,r];insSet(o,1);relayout()};
+window.__ins=(t,b,l,r,land)=>{let o={};try{o=JSON.parse(localStorage.getItem("focus-ins4")||"{}")||{}}catch(e){}const k=land?"l":"p",n=[t,b,l,r];if(o[k]&&o[k].every((v,i)=>Math.abs(v-n[i])<.5))return;o[k]=n;insSet(o,1);relayout()};
 try{insSet(JSON.parse(localStorage.getItem("focus-ins4")||"{}")||{})}catch(e){}
 addEventListener("resize",relayout);addEventListener("orientationchange",()=>setTimeout(relayout,150));
 
