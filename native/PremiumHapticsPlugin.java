@@ -27,6 +27,15 @@ public class PremiumHapticsPlugin extends Plugin {
     });
   }
 
+  /** Hides the system bars while the timer runs, shows them otherwise (any orientation). */
+  @PluginMethod(returnType = PluginMethod.RETURN_NONE)
+  public void immersive(PluginCall call) {
+    final boolean on = Boolean.TRUE.equals(call.getBoolean("on", false));
+    getActivity().runOnUiThread(() -> {
+      if (getActivity() instanceof MainActivity) ((MainActivity) getActivity()).setImmersive(on);
+    });
+  }
+
   @PluginMethod(returnType = PluginMethod.RETURN_NONE)
   public void play(PluginCall call) {
     final String t = call.getString("t", "step");

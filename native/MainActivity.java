@@ -19,6 +19,7 @@ public class MainActivity extends BridgeActivity {
   private boolean light = false;
   private int iT, iB, iL, iR;
   private boolean insLand;
+  private boolean hideBars = false; // bars hidden only while the timer runs
   private final Runnable visRun = this::applyVisibility;
 
   private boolean isLand() {
@@ -33,6 +34,12 @@ public class MainActivity extends BridgeActivity {
     float d = getResources().getDisplayMetrics().density;
     String js = "window.__ins&&window.__ins(" + (iT / d) + "," + (iB / d) + "," + (iL / d) + "," + (iR / d) + "," + isLand() + ")";
     getBridge().getWebView().evaluateJavascript(js, null);
+  }
+
+  // Called from the web layer: hide status + navigation bars only while the timer is running.
+  public void setImmersive(boolean on) {
+    hideBars = on;
+    applyVisibility();
   }
 
   // Called from the web layer (PremiumHaptics.theme) so system bars follow the in-app theme.
@@ -56,8 +63,7 @@ public class MainActivity extends BridgeActivity {
       Insets sb = insets.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars());
       Insets cu = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
       insLand = isLand();
-      if (insLand) { iT = cu.top; iB = 0; iL = cu.left; iR = cu.right; }  // bars hidden in landscape
-      else { iT = Math.max(sb.top, cu.top); iB = sb.bottom; iL = cu.left; iR = cu.right; }
+      iT = Math.max(sb.top, cu.top); iB = sb.bottom; iL = Math.max(sb.left, cu.left); iR = Math.max(sb.right, cu.right);
       pushInsets();
       return WindowInsetsCompat.CONSUMED;
     });
@@ -114,7 +120,7 @@ public class MainActivity extends BridgeActivity {
   private void applyVisibility() {
     Window w = getWindow();
     WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, w.getDecorView());
-    if (isLand()) ic.hide(WindowInsetsCompat.Type.systemBars());
+    if (hideBars) ic.hide(WindowInsetsCompat.Type.systemBars());
     else ic.show(WindowInsetsCompat.Type.systemBars());
   }
 }
