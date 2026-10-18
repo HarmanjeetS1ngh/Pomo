@@ -6,6 +6,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
+import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
@@ -24,6 +25,18 @@ public class PremiumHapticsPlugin extends Plugin {
     final int color = parsed;
     getActivity().runOnUiThread(() -> {
       if (getActivity() instanceof MainActivity) ((MainActivity) getActivity()).setBars(color, light);
+    });
+  }
+
+  /** Current system-bar insets in CSS px, so the page can pad itself from the very first frame. */
+  @PluginMethod
+  public void insets(PluginCall call) {
+    getActivity().runOnUiThread(() -> {
+      if (!(getActivity() instanceof MainActivity)) { call.reject("no activity"); return; }
+      float[] v = ((MainActivity) getActivity()).insetsDp();
+      JSObject o = new JSObject();
+      try { o.put("t", v[0]); o.put("b", v[1]); o.put("l", v[2]); o.put("r", v[3]); o.put("land", v[4] == 1); } catch (Exception ignored) {}
+      call.resolve(o);
     });
   }
 

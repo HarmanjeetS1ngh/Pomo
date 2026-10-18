@@ -293,6 +293,7 @@ matchMedia("(orientation:landscape)").addEventListener("change",()=>{const g=$("
 const insSet=(o,save)=>{const R=document.documentElement;for(const m of["p","l"])if(o[m])["t","b","l","r"].forEach((k,n)=>R.style.setProperty("--sa"+k+"-"+m,Math.max(0,+o[m][n]||0)+"px"));if(save)try{localStorage.setItem("focus-ins4",JSON.stringify(o))}catch(e){}};
 window.__ins=(t,b,l,r,land)=>{let o={};try{o=JSON.parse(localStorage.getItem("focus-ins4")||"{}")||{}}catch(e){}const k=land?"l":"p",n=[t,b,l,r];if(o[k]&&o[k].every((v,i)=>Math.abs(v-n[i])<.5))return;o[k]=n;insSet(o,1);relayout()};
 try{insSet(JSON.parse(localStorage.getItem("focus-ins4")||"{}")||{})}catch(e){}
+const pullIns=()=>{try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PremiumHaptics;if(P&&P.insets)P.insets().then(r=>window.__ins(r.t,r.b,r.l,r.r,!!r.land)).catch(()=>{})}catch(e){}};pullIns();setTimeout(pullIns,400);setTimeout(pullIns,1500);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pullIns()});
 addEventListener("resize",relayout);addEventListener("orientationchange",()=>setTimeout(relayout,150));
 
 const cv=$("#cv"),cx=cv.getContext("2d");

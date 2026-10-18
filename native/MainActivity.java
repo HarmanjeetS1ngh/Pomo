@@ -19,13 +19,28 @@ public class MainActivity extends BridgeActivity {
   private boolean light = false;
   private int iT, iB, iL, iR;
   private boolean insLand;
-  private String lastJs = "";
+  private int tries = 0;
   private boolean hideBars = false; // bars hidden only while the timer runs
-  private final Runnable visRun = this::applyVisibility;
+  private final Runnable visRun = this::enforce;
 
   private boolean isLand() {
     android.util.DisplayMetrics m = getResources().getDisplayMetrics();
     return m.widthPixels > m.heightPixels;
+  }
+
+  private void calc(WindowInsetsCompat insets) {
+    Insets sb = insets.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars());
+    Insets cu = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
+    insLand = isLand();
+    iT = Math.max(sb.top, cu.top); iB = sb.bottom; iL = Math.max(sb.left, cu.left); iR = Math.max(sb.right, cu.right);
+  }
+
+  // Pull API for the web layer (called on load, so first launch never depends on push timing).
+  public float[] insetsDp() {
+    WindowInsetsCompat r = ViewCompat.getRootWindowInsets(getWindow().getDecorView());
+    if (r != null) calc(r);
+    float d = getResources().getDisplayMetrics().density;
+    return new float[] { iT / d, iB / d, iL / d, iR / d, isLand() ? 1 : 0 };
   }
 
   // Pushes current system-bar / cutout insets (CSS px) to the web layer.
@@ -34,20 +49,15 @@ public class MainActivity extends BridgeActivity {
     if (insLand != isLand()) return; // values belong to the other orientation; the next inset pass sends fresh ones
     float d = getResources().getDisplayMetrics().density;
     String js = "window.__ins&&window.__ins(" + (iT / d) + "," + (iB / d) + "," + (iL / d) + "," + (iR / d) + "," + isLand() + ")";
-    if (js.equals(lastJs)) return; // unchanged -> no web relayout (it would cut the start animation)
-    lastJs = js;
     getBridge().getWebView().evaluateJavascript(js, null);
   }
 
   // Called from the web layer: hide status + navigation bars only while the timer is running.
   public void setImmersive(boolean on) {
     hideBars = on;
-    applyVisibility();
-    // re-assert: a show() issued right after a rotation can be dropped for the navigation bar
-    View d = getWindow().getDecorView();
-    d.removeCallbacks(visRun);
-    d.postDelayed(visRun, 300);
-    d.postDelayed(visRun, 800);
+    tries = 0;
+    getWindow().getDecorView().removeCallbacks(visRun);
+    enforce();
   }
 
   // Called from the web layer (PremiumHaptics.theme) so system bars follow the in-app theme.
@@ -68,10 +78,7 @@ public class MainActivity extends BridgeActivity {
     ViewCompat.setOnApplyWindowInsetsListener(decor, (v, insets) -> {
       // Deterministic insets: independent of whether the bars are currently shown/hidden/animating,
       // so rotation never pushes transient values (the cause of the upward jump).
-      Insets sb = insets.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars());
-      Insets cu = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
-      insLand = isLand();
-      iT = Math.max(sb.top, cu.top); iB = sb.bottom; iL = Math.max(sb.left, cu.left); iR = Math.max(sb.right, cu.right);
+      calc(insets);
       pushInsets();
       return WindowInsetsCompat.CONSUMED;
     });
@@ -125,6 +132,20 @@ public class MainActivity extends BridgeActivity {
 
   // Layout is edge-to-edge, so bar visibility never changes layout; doing it after the rotation
   // animation avoids inset dispatch + relayout work while the system animation is running.
+  // Applies the wanted bar visibility, then checks the REAL state and retries until it matches.
+  // (After a rotation the system can silently drop show()/hide() for the navigation bar.)
+  private void enforce() {
+    View d = getWindow().getDecorView();
+    Window w = getWindow();
+    WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, d);
+    if (!hideBars && tries == 6) ic.hide(WindowInsetsCompat.Type.systemBars()); // kick a stuck state
+    else applyVisibility();
+    WindowInsetsCompat r = ViewCompat.getRootWindowInsets(d);
+    boolean ok = r == null || (r.isVisible(WindowInsetsCompat.Type.statusBars()) != hideBars
+      && r.isVisible(WindowInsetsCompat.Type.navigationBars()) != hideBars);
+    if (!ok && tries++ < 16) d.postDelayed(visRun, 120); else tries = 0;
+  }
+
   private void applyVisibility() {
     Window w = getWindow();
     WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, w.getDecorView());
