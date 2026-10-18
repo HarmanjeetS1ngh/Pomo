@@ -474,7 +474,8 @@ function tetPal(){
 function tet(c,d,e,D,pal,off){
  const ls=LSM.matches,[cols,R]=tetLv(D,ls),pg=[cols,R];
  if(c===cv){const lk=cols+"|"+R;if(tet.busy)return;
-  if(tet.lk&&tet.lk!==lk&&c.clientWidth&&!RM.matches){tet.busy=1;c.classList.add("tmx");setTimeout(()=>{tet.lk=lk;tet.busy=0;c.style.setProperty("--ar",pg[0]+" / "+pg[1]);c.classList.remove("tmx");tetDraw()},210);return}
+  if(tet.lk&&tet.lk!==lk&&c.clientWidth&&!RM.matches&&!tet.rot){tetFade(210);return}
+  tet.rot=0;
   tet.lk=lk;c.style.setProperty("--ar",pg[0]+" / "+pg[1])}
  const W=c.clientWidth,H=c.clientHeight;if(!W)return;
  const pw=Math.round(W*d),ph=Math.round(H*d);if(c.width!==pw||c.height!==ph){c.width=pw;c.height=ph}
@@ -490,6 +491,16 @@ function tet(c,d,e,D,pal,off){
   else{if(e>0&&el>=0){const n=P[k].mr+1,u=ch/4,tr=Math.min(n*ch,(Math.floor(el/sc.tf[k]*n*ch/u)+1)*u);blk(P[k],-n*ch+tr)}break}}
  x.globalAlpha=1}
 function tprog(){const D=dur(S.mode),r=S.running?Math.max(0,(S.end-Date.now())/1000):S.rem;return[Math.min(D,Math.max(0,D-r)),D]}
+function tetFade(ms,fn){if(tet.busy)return;tet.busy=1;cv.classList.add("tmx");setTimeout(()=>{tet.busy=0;tet.lk=null;center();tetDraw();requestAnimationFrame(()=>{cv.classList.remove("tmx");fn&&fn()})},ms)}
+const tetSnap=()=>{if(Date.now()<(tetSnap.t||0))return;const a=$("#stage").getBoundingClientRect(),b=$("#ctl").getBoundingClientRect();if(a.width)tetSnap.v=[a,b]};
+setInterval(tetSnap,400);setTimeout(tetSnap,300);
+LSM.addEventListener("change",()=>{if(S.cs!=="tetris"||RM.matches||!cv.clientWidth)return;
+ const o=tetSnap.v;tetSnap.t=Date.now()+900;if(!o)return;tet.rot=1;
+ const E={duration:480,easing:"cubic-bezier(.22,1,.36,1)"},mv=(el,r0)=>{const r=el.getBoundingClientRect();return[r0.left+r0.width/2-(r.left+r.width/2),r0.top+r0.height/2-(r.top+r.height/2),r0.width/(r.width||1)]};
+ const[x,y,k]=mv($("#stage"),o[0]);$("#stage").animate([{transform:`translate(${x}px,${y}px) scale(${k})`},{transform:"none"}],E);
+ const[cx,cy]=mv($("#ctl"),o[1]);$("#ctl").animate([{opacity:0,transform:`translate(${cx}px,${cy}px)`},{opacity:1,transform:"none"}],E);
+ $("nav").animate([{opacity:0},{opacity:1}],{duration:420,easing:"ease-out"});
+ cv.animate([{opacity:0},{opacity:0,offset:.3},{opacity:1}],{duration:480,easing:"ease-out"})});
 function tetDraw(){const h=!S.running&&Date.now()-(tetGo.done||0)<1400,pd=dur(S.mode==="f"?"b":"f"),[e,D]=h?[pd,pd]:tprog();
  tet(cv,(window.devicePixelRatio||1)*(draw.k||1),e,D,tetPal(),DC[1])}
 function tetLoop(ts){
