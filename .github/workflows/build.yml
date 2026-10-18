@@ -12,6 +12,7 @@ jobs:
       - run: npm install
       - run: npx cap add android
       - run: sed -i 's|<application|<uses-permission android:name="android.permission.VIBRATE" />\n    <application|' android/app/src/main/AndroidManifest.xml
+      - run: sed -i 's|<item name="windowNoTitle">true</item>|&\n        <item name="android:windowBackground">#121212</item>\n        <item name="android:colorBackground">#121212</item>|' android/app/src/main/res/values/styles.xml
       - run: cp native/*.java android/app/src/main/java/com/harman/focus/
       - run: npx cap sync android
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug

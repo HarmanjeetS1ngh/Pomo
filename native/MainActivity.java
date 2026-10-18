@@ -23,7 +23,7 @@ public class MainActivity extends BridgeActivity {
   private void pushInsets() {
     if (getBridge() == null || getBridge().getWebView() == null) return;
     float d = getResources().getDisplayMetrics().density;
-    String js = "window.__ins&&window.__ins(" + (iT / d) + "," + (iB / d) + "," + (iL / d) + "," + (iR / d) + ")";
+    String js = "window.__ins&&window.__ins(" + (iT / d) + "," + (iB / d) + "," + (iL / d) + "," + (iR / d) + "," + (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) + ")";
     getBridge().getWebView().evaluateJavascript(js, null);
   }
 
@@ -72,6 +72,8 @@ public class MainActivity extends BridgeActivity {
     boolean land = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     int bg = barColor;
     w.setBackgroundDrawable(new ColorDrawable(bg));
+    // system rotation animation paints this colour behind the app (otherwise a grey theme default)
+    if (Build.VERSION.SDK_INT >= 33) setTaskDescription(new android.app.ActivityManager.TaskDescription.Builder().setBackgroundColor(bg).build());
     // WebView surface follows the theme too, so no off-colour strip shows while it resizes on rotation
     if (getBridge() != null && getBridge().getWebView() != null) getBridge().getWebView().setBackgroundColor(bg);
     w.setStatusBarColor(bg);
