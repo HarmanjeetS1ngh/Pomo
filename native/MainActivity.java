@@ -94,8 +94,18 @@ public class MainActivity extends BridgeActivity {
   public void onConfigurationChanged(Configuration c) {
     super.onConfigurationChanged(c);
     applyBars(false);
-    getWindow().getDecorView().removeCallbacks(visRun);
-    getWindow().getDecorView().postDelayed(visRun, 450);
+    final View d = getWindow().getDecorView();
+    d.removeCallbacks(visRun);
+    if (isTablet() && hideBars) {
+      // Tablet taskbar gets rebuilt on rotation; if that happens while the bars are hidden it stays
+      // out of sync (nav bar missing after stop until the next rotation). So let it rebuild with the
+      // bars visible, exactly like a rotation while paused, then hide them again.
+      WindowCompat.getInsetsController(getWindow(), d).show(WindowInsetsCompat.Type.systemBars());
+      tries = 0;
+      d.postDelayed(visRun, 900);
+    } else {
+      d.postDelayed(visRun, 450);
+    }
   }
 
   @Override
