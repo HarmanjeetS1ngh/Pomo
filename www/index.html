@@ -284,7 +284,7 @@ function center(){
  if(!b.width)return;
  const ls=matchMedia("(orientation:landscape)").matches,q=S.cs==="tetris"?tetLv(tprog()[1],ls):0,hh=q?Math.max(b.width*.14,b.width*q[1]/q[0]/2):b.width*.14,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(hh+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
  r.style.setProperty("--hh",hh+"px");r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);draw.k=s}
-let rz,rt;const relayout=()=>{const g=$("#ring");if(S.running){g.classList.add("rot");clearTimeout(rt);rt=setTimeout(()=>g.classList.remove("rot"),350)}cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
+let rz,rt;const relayout=()=>{const g=$("#ring");if(S.running){g.classList.add("rot");clearTimeout(rt);rt=setTimeout(()=>g.classList.remove("rot"),350)}center();cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
 ["#app","#vt"].forEach(q=>{const e=document.querySelector(q);if(e)new ResizeObserver(()=>{if(S.running)relayout()}).observe(e)});
 addEventListener("resize",relayout);addEventListener("orientationchange",()=>setTimeout(relayout,150));
 
@@ -506,7 +506,7 @@ setInterval(tetSnap,400);setTimeout(tetSnap,300);
 LSM.addEventListener("change",()=>{if(S.cs!=="tetris"||RM.matches||!cv.clientWidth)return;
  const o=tetSnap.v;tetSnap.t=Date.now()+900;if(!o)return;tet.rot=1;
  const E={duration:480,easing:"cubic-bezier(.22,1,.36,1)"},mv=(el,r0)=>{const r=el.getBoundingClientRect();return[r0.left+r0.width/2-(r.left+r.width/2),r0.top+r0.height/2-(r.top+r.height/2),r0.width/(r.width||1)]};
- const[x,y,k]=mv($("#stage"),o[0]);$("#stage").animate([{transform:`translate(${x}px,${y}px) scale(${k})`},{transform:"none"}],E);
+ const[x,y,k]=S.running?[0,0,1]:mv($("#stage"),o[0]);if(!S.running)$("#stage").animate([{transform:`translate(${x}px,${y}px) scale(${k})`},{transform:"none"}],E);
  const[cx,cy]=mv($("#ctl"),o[1]);$("#ctl").animate([{opacity:0,transform:`translate(${cx}px,${cy}px)`},{opacity:1,transform:"none"}],E);
  $("nav").animate([{opacity:0},{opacity:1}],{duration:420,easing:"ease-out"});
  cv.animate([{opacity:0},{opacity:0,offset:.3},{opacity:1}],{duration:480,easing:"ease-out"})});
