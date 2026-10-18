@@ -18,12 +18,19 @@ public class MainActivity extends BridgeActivity {
   private int barColor = 0xFF121212;
   private boolean light = false;
   private int iT, iB, iL, iR;
+  private boolean insLand;
+
+  private boolean isLand() {
+    android.util.DisplayMetrics m = getResources().getDisplayMetrics();
+    return m.widthPixels > m.heightPixels;
+  }
 
   // Pushes current system-bar / cutout insets (CSS px) to the web layer.
   private void pushInsets() {
     if (getBridge() == null || getBridge().getWebView() == null) return;
+    if (insLand != isLand()) return; // values belong to the other orientation; the next inset pass sends fresh ones
     float d = getResources().getDisplayMetrics().density;
-    String js = "window.__ins&&window.__ins(" + (iT / d) + "," + (iB / d) + "," + (iL / d) + "," + (iR / d) + "," + (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) + ")";
+    String js = "window.__ins&&window.__ins(" + (iT / d) + "," + (iB / d) + "," + (iL / d) + "," + (iR / d) + "," + isLand() + ")";
     getBridge().getWebView().evaluateJavascript(js, null);
   }
 
@@ -43,8 +50,13 @@ public class MainActivity extends BridgeActivity {
     WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
     final View decor = getWindow().getDecorView();
     ViewCompat.setOnApplyWindowInsetsListener(decor, (v, insets) -> {
-      Insets b = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
-      iT = b.top; iB = b.bottom; iL = b.left; iR = b.right;
+      // Deterministic insets: independent of whether the bars are currently shown/hidden/animating,
+      // so rotation never pushes transient values (the cause of the upward jump).
+      Insets sb = insets.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars());
+      Insets cu = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
+      insLand = isLand();
+      if (insLand) { iT = cu.top; iB = 0; iL = cu.left; iR = cu.right; }  // bars hidden in landscape
+      else { iT = Math.max(sb.top, cu.top); iB = sb.bottom; iL = cu.left; iR = cu.right; }
       pushInsets();
       return WindowInsetsCompat.CONSUMED;
     });
@@ -83,6 +95,7 @@ public class MainActivity extends BridgeActivity {
       lp.layoutInDisplayCutoutMode = Build.VERSION.SDK_INT >= 30
         ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
         : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+      lp.rotationAnimation = WindowManager.LayoutParams.ROTATION_ANIMATION_CROSSFADE; // no grey frame / jerk on rotate
       w.setAttributes(lp);
     }
     WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, w.getDecorView());

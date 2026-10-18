@@ -290,9 +290,9 @@ let rz,rt;const relayout=()=>{const g=$("#ring");if(S.running){g.classList.add("
 matchMedia("(orientation:landscape)").addEventListener("change",()=>{const g=$("#ring");g.classList.add("rot");clearTimeout(rt);rt=setTimeout(()=>g.classList.remove("rot"),700);center()});
 ["#app","#vt"].forEach(q=>{const e=document.querySelector(q);if(e)new ResizeObserver(()=>{if(S.running)relayout()}).observe(e)});
 /* native (Android) pushes system-bar insets here; window stays edge-to-edge so rotation never resizes the WebView */
-const insSet=(o,save)=>{const R=document.documentElement;for(const m of["p","l"])if(o[m])["t","b","l","r"].forEach((k,n)=>R.style.setProperty("--sa"+k+"-"+m,Math.max(0,+o[m][n]||0)+"px"));if(save)try{localStorage.setItem("focus-ins2",JSON.stringify(o))}catch(e){}};
-window.__ins=(t,b,l,r,land)=>{let o={};try{o=JSON.parse(localStorage.getItem("focus-ins2")||"{}")||{}}catch(e){}o[land?"l":"p"]=[t,b,l,r];insSet(o,1);relayout()};
-try{insSet(JSON.parse(localStorage.getItem("focus-ins2")||"{}")||{})}catch(e){}
+const insSet=(o,save)=>{const R=document.documentElement;for(const m of["p","l"])if(o[m])["t","b","l","r"].forEach((k,n)=>R.style.setProperty("--sa"+k+"-"+m,Math.max(0,+o[m][n]||0)+"px"));if(save)try{localStorage.setItem("focus-ins3",JSON.stringify(o))}catch(e){}};
+window.__ins=(t,b,l,r,land)=>{let o={};try{o=JSON.parse(localStorage.getItem("focus-ins3")||"{}")||{}}catch(e){}o[land?"l":"p"]=[t,b,l,r];insSet(o,1);relayout()};
+try{insSet(JSON.parse(localStorage.getItem("focus-ins3")||"{}")||{})}catch(e){}
 addEventListener("resize",relayout);addEventListener("orientationchange",()=>setTimeout(relayout,150));
 
 const cv=$("#cv"),cx=cv.getContext("2d");
