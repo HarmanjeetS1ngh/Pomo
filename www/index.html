@@ -506,15 +506,23 @@ function tet(c,d,e,D,pal,off){
  x.globalAlpha=1}
 function tprog(){const D=dur(S.mode),r=S.running?Math.max(0,(S.end-Date.now())/1000):S.rem;return[Math.min(D,Math.max(0,D-r)),D]}
 function tetFade(ms,fn){if(tet.busy)return;tet.busy=1;cv.classList.add("tmx");setTimeout(()=>{tet.busy=0;tet.lk=null;center();tetDraw();requestAnimationFrame(()=>{cv.classList.remove("tmx");fn&&fn()})},ms)}
-const tetSnap=()=>{if(Date.now()<(tetSnap.t||0))return;const a=$("#stage").getBoundingClientRect(),b=$("#ctl").getBoundingClientRect();if(a.width)tetSnap.v=[a,b]};
-setInterval(tetSnap,400);setTimeout(tetSnap,300);
-LSM.addEventListener("change",()=>{if(S.cs!=="tetris"||RM.matches||!cv.clientWidth)return;
- const o=tetSnap.v;tetSnap.t=Date.now()+900;if(!o)return;tet.rot=1;
- const E={duration:480,easing:"cubic-bezier(.22,1,.36,1)"},mv=(el,r0)=>{const r=el.getBoundingClientRect();return[r0.left+r0.width/2-(r.left+r.width/2),r0.top+r0.height/2-(r.top+r.height/2),r0.width/(r.width||1)]};
- const[x,y,k]=S.running?[0,0,1]:mv($("#stage"),o[0]);if(!S.running)$("#stage").animate([{transform:`translate(${x}px,${y}px) scale(${k})`},{transform:"none"}],E);
- const[cx,cy]=mv($("#ctl"),o[1]);$("#ctl").animate([{opacity:0,transform:`translate(${cx}px,${cy}px)`},{opacity:1,transform:"none"}],E);
- $("nav").animate([{opacity:0},{opacity:1}],{duration:420,easing:"ease-out"});
- cv.animate([{opacity:0},{opacity:0,offset:.3},{opacity:1}],{duration:480,easing:"ease-out"})});
+const tetSnap=()=>{if(Date.now()<(tetSnap.t||0))return;const V=document.querySelector(".view.on");if(!V)return;const a=$("#ring").getBoundingClientRect(),b=$("#ctl").getBoundingClientRect();tetSnap.v={id:V.id,ring:a,ctl:b,kids:[...V.children].slice(0,40).map(e=>e.getBoundingClientRect())}};
+setInterval(tetSnap,300);setTimeout(tetSnap,300);
+/* whole-app rotation animation: every view glides from its old layout to the new one */
+LSM.addEventListener("change",()=>{if(RM.matches)return;
+ const V=document.querySelector(".view.on"),o=tetSnap.v;tetSnap.t=Date.now()+1200;if(!V||!o||o.id!==V.id)return;
+ if(S.cs==="tetris")tet.rot=1;
+ const E={duration:520,easing:"cubic-bezier(.22,1,.36,1)"},g=$("#ring"),C=r=>[r.left+r.width/2,r.top+r.height/2];
+ const slide=(el,a,fade)=>{const n=el.getBoundingClientRect();if(!n.width||!a.width)return;const[x0,y0]=C(a),[x1,y1]=C(n);el.animate([{opacity:fade?0:1,transform:`translate(${x0-x1}px,${y0-y1}px)`},{opacity:1,transform:"none"}],E)};
+ if(V.id==="vt"){
+  if(S.running){g.classList.add("rot");clearTimeout(rt);rt=setTimeout(()=>g.classList.remove("rot"),700)}
+  center();
+  const n=g.getBoundingClientRect(),a=o.ring,[x0,y0]=C(a),[x1,y1]=C(n),q=S.running?(parseFloat(g.style.getPropertyValue("--s"))||1):1;
+  if(n.width)$("#time").animate([{transform:`translate(${(x0-x1)/q}px,${(y0-y1)/q}px) scale(${a.width/n.width})`},{transform:"none"}],E);
+  if(!S.running)slide($("#ctl"),o.ctl,true);
+  [cv,$("#fxc")].forEach(e=>{if(e.offsetWidth)e.animate([{opacity:0},{opacity:0,offset:.3},{opacity:1}],{duration:520,easing:"ease-out"})})
+ }else[...V.children].slice(0,40).forEach((e,i)=>{if(o.kids[i])slide(e,o.kids[i],true)});
+ $("nav").animate([{opacity:0},{opacity:1}],{duration:420,easing:"ease-out"})});
 function tetDraw(){const h=!S.running&&Date.now()-(tetGo.done||0)<1400,pd=dur(S.mode==="f"?"b":"f"),[e,D]=h?[pd,pd]:tprog();
  tet(cv,(window.devicePixelRatio||1)*(draw.k||1),e,D,tetPal(),DC[1])}
 function tetLoop(ts){

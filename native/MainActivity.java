@@ -79,7 +79,6 @@ public class MainActivity extends BridgeActivity {
       lp.layoutInDisplayCutoutMode = Build.VERSION.SDK_INT >= 30
         ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
         : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-      lp.rotationAnimation = WindowManager.LayoutParams.ROTATION_ANIMATION_CROSSFADE;
       w.setAttributes(lp);
     }
     WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, w.getDecorView());
