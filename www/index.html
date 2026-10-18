@@ -153,10 +153,50 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 #tm .tc svg{width:clamp(15px,4.4vw,18px);height:clamp(15px,4.4vw,18px);min-width:0}
 #tm .tc.on{background:var(--f);color:var(--bg)}
 @media (max-width:360px){.ib{width:36px;height:36px}.ht b{font-size:16px}.stp>span{min-width:54px}.stp .sb{width:36px}.tg{grid-template-columns:1fr}}
+
+/* clock styles: flip clock + long-press picker */
+#fxc{display:none}[data-cs=flip] #cv{display:none}[data-cs=flip] #fxc{display:flex}
+[data-cs=flip] #lab{top:calc(50% + var(--rs)*.176)}[data-cs=flip] .ring{will-change:auto}
+.ring{-webkit-touch-callout:none}
+.fxc{display:flex;gap:2em;width:100%;aspect-ratio:100/35.2;font-size:calc(var(--w,var(--rs))/100)}
+.fxd{position:relative;flex:1 1 0;perspective:90em}
+.fxd>div{position:absolute;left:0;right:0;height:50%;overflow:hidden}
+.fxu,.fxa{top:0;border-radius:2.6em 2.6em 1em 1em;background:var(--doff);background:linear-gradient(180deg,color-mix(in srgb,var(--doff) 84%,#fff),var(--doff))}
+.fxl,.fxb{top:50%;border-radius:1em 1em 2.6em 2.6em;background:var(--doff);background:linear-gradient(180deg,color-mix(in srgb,var(--doff) 93%,#000),color-mix(in srgb,var(--doff) 80%,#000))}
+.fxd i{position:absolute;left:0;right:0;height:200%;display:flex;align-items:center;justify-content:center;font:normal 900 28em/1 sans-serif-condensed,"Roboto Condensed","Arial Narrow",Arial,sans-serif;font-variant-numeric:tabular-nums;color:var(--f);-webkit-text-stroke:.025em currentColor}
+.fxu i,.fxa i{top:0}.fxu i,.fxa i{color:color-mix(in srgb,var(--f) 84%,#fff)}.fxl i,.fxb i{bottom:0}
+.fxa,.fxb{z-index:2;visibility:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.fxa{transform-origin:50% 100%}.fxb{transform-origin:50% 0;transform:rotateX(90deg)}
+.fxa::after,.fxb::after{content:"";position:absolute;inset:0;background:#000;opacity:0}
+.fxd::after{content:"";position:absolute;left:0;right:0;top:calc(50% - .17em);height:.34em;background:var(--bg);z-index:5}
+.fxd.go .fxa,.fxd.go .fxb{visibility:visible}
+.fxd.go .fxa{animation:fxA .25s cubic-bezier(.45,0,.85,.55) both}
+.fxd.go .fxa::after{animation:fxS .25s linear both}
+.fxd.go .fxb{animation:fxB .3s cubic-bezier(.15,.7,.3,1) .25s both}
+.fxd.go .fxb::after{animation:fxT .3s linear .25s both}
+@keyframes fxA{from{transform:rotateX(0)}to{transform:rotateX(-90deg)}}
+@keyframes fxB{from{transform:rotateX(90deg)}to{transform:rotateX(0)}}
+@keyframes fxS{from{opacity:0}to{opacity:.55}}
+@keyframes fxT{from{opacity:.55}to{opacity:0}}
+#pk{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+#pk.on{opacity:1;visibility:visible}
+.pkb{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.pks{position:relative;width:100%;max-width:560px;background:var(--nav);border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;padding:10px 0 calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .35s cubic-bezier(.22,1,.36,1)}
+#pk.on .pks{transform:none}
+.pks{touch-action:pan-x}.pkg,.pks h3{touch-action:none}.pkg::before{content:"";position:absolute;inset:-14px -48px}
+.pkg{position:relative;display:block;width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+.pks h3{margin:0 20px 14px;font-size:15px;font-weight:600}
+.pkr{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 20px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.pkr::-webkit-scrollbar{display:none}
+.pkc{flex:none;width:min(260px,72vw);scroll-snap-align:center;border:2px solid var(--line);border-radius:16px;background:var(--bg);padding:14px 12px 12px;display:flex;flex-direction:column;gap:12px;align-items:center;transition:border-color .2s,transform .15s}
+.pkc.on{border-color:var(--f)}.pkc:active{transform:scale(.97)}
+.pkc b{font-size:14px;font-weight:600}
+.pkv{--w:calc(min(260px,72vw) - 28px);width:var(--w);height:calc(var(--w)*.352);display:flex;align-items:center}
+.pkv canvas{width:100%;aspect-ratio:25/7;display:block}
 </style></head>
 <body><div id="app">
 <section class="view on" id="vt"><div id="stage"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
-<div id="time"><canvas id="cv"></canvas><span id="lab">Focus</span></div></div></div>
+<div id="time"><canvas id="cv"></canvas><div class="fxc" id="fxc" aria-hidden="true"></div><span id="lab">Focus</span></div></div></div>
 <div id="ctl"><button class="sm" id="rs">Reset</button><button id="go">Start</button><button class="sm" id="sk">Skip</button></div></section>
 <section class="view" id="vs"></section>
 <section class="view" id="vg">
@@ -177,7 +217,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 </div>
 <script>
 const $=s=>document.querySelector(s);
-let S={f:25,b:5,goal:4,days:{},ses:{},mode:"f",theme:"dark",rem:1500,running:false,end:0,seg:0};
+let S={f:25,b:5,goal:4,days:{},ses:{},mode:"f",theme:"dark",cs:"dots",rem:1500,running:false,end:0,seg:0};
 try{Object.assign(S,JSON.parse(localStorage.getItem("focus1")||"{}"))}catch(e){}
 {const ok=(v,lo)=>Number.isFinite(v)&&v>=lo;if(!ok(S.f,5))S.f=25;if(!ok(S.b,1))S.b=5;if(!ok(S.goal,1))S.goal=4;if(S.mode!=="f"&&S.mode!=="b")S.mode="f";if(!ok(S.rem,1))S.rem=(S.mode==="f"?S.f:S.b)*60;if(S.running&&!Number.isFinite(S.end))S.running=false}
 const save=()=>{try{localStorage.setItem("focus1",JSON.stringify(S))}catch(e){}};
@@ -215,7 +255,7 @@ function start(){try{ac=ac||new AudioContext();ac.resume()}catch(e){}const n=Dat
 function swap(){S.mode=S.mode==="f"?"b":"f";S.rem=dur(S.mode)}
 function finish(quiet){credit(S.end);if(S.mode==="f"){const k=key();S.ses[k]=(S.ses[k]||0)+1}S.running=false;swap();try{wl&&wl.release()}catch(e){}if(!quiet)beep();save();render()}
 function toggle(){hap(S.running?"off":"on");S.running?pause():start()}
-$("#ring").onclick=toggle;$("#go").onclick=toggle;
+$("#ring").onclick=()=>{if(LP){LP=0;return}toggle()};$("#go").onclick=toggle;
 $("#rs").onclick=()=>{pause();S.rem=dur(S.mode);save();render()};
 $("#sk").onclick=()=>{if(S.mode!=="b")return;pause();swap();save();render()};
 // tap anywhere while running pauses (capture phase so it runs before other handlers)
@@ -225,22 +265,27 @@ document.addEventListener("click",e=>{if(S.running){e.stopPropagation();hap("off
 function center(){
  const r=$("#ring"),b=$("#stage").getBoundingClientRect();
  if(!b.width)return;
- const ls=matchMedia("(orientation:landscape)").matches,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(b.width*.14+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
+ const ls=matchMedia("(orientation:landscape)").matches,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(b.width*(S.cs==="flip"?.176:.14)+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
  r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);draw.k=s}
 let rz;const relayout=()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
 addEventListener("resize",relayout);addEventListener("orientationchange",()=>setTimeout(relayout,150));
 
 const cv=$("#cv"),cx=cv.getContext("2d");
 const GL={"0":"01110,10001,10011,10101,11001,10001,01110","1":"00100,01100,00100,00100,00100,00100,01110","2":"01110,10001,00001,00010,00100,01000,11111","3":"11110,00001,00001,01110,00001,00001,11110","4":"00010,00110,01010,10010,11111,00010,00010","5":"11111,10000,11110,00001,00001,10001,01110","6":"00110,01000,10000,11110,10001,10001,01110","7":"11111,00001,00010,00100,01000,01000,01000","8":"01110,10001,10001,01110,10001,10001,01110","9":"01110,10001,10001,01111,00001,00010,01100",":":"0,0,1,0,1,0,0"};
-function draw(t,f){
- draw.n=t;
- const W=cv.clientWidth,H=cv.clientHeight;if(!W||!t||(!f&&draw.l===t))return;draw.l=t;
- const d=(window.devicePixelRatio||1)*(draw.k||1);cv.width=Math.round(W*d);cv.height=Math.round(H*d);cx.setTransform(d,0,0,d,0,0);
+function dots(c,t,d,on,off){
+ const W=c.clientWidth,H=c.clientHeight;if(!W)return;const cx=c.getContext("2d");
+ c.width=Math.round(W*d);c.height=Math.round(H*d);cx.setTransform(d,0,0,d,0,0);
  const cp=W/25,p=cp/2.6,r=p*.42;let col=0;
  for(const ch of t){const rows=GL[ch].split(","),w=rows[0].length;
-  for(let y=0;y<7;y++)for(let x=0;x<w;x++){cx.fillStyle=rows[y][x]==="1"?DC[0]:DC[1];
+  for(let y=0;y<7;y++)for(let x=0;x<w;x++){cx.fillStyle=rows[y][x]==="1"?on:off;
    for(let i=0;i<2;i++)for(let j=0;j<2;j++){cx.beginPath();cx.arc((col+x)*cp+i*p+p/2,y*cp+j*p+p/2,r,0,6.2832);cx.fill()}}
   col+=w+1}
+}
+function draw(t,f){
+ draw.n=t;
+ if(S.cs==="flip"){flip(t,f);return}
+ if(!t||(!f&&draw.l===t))return;draw.l=t;
+ dots(cv,t,(window.devicePixelRatio||1)*(draw.k||1),DC[0],DC[1]);
 }
 function render(){
  const r=S.running?Math.max(0,Math.ceil((S.end-Date.now())/1000)):S.rem,d=dur(S.mode);
@@ -305,6 +350,46 @@ const sv=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const card=(id,at)=>{const [n,i,c,m]=PAL[id];return `<button class="tc" data-${at}="${id}" style="--cb:${m?"var(--bg)":c[0]};--cf:${m?"var(--fg)":c[4]}"><span class="tn">${sv(i)}${n}</span>${at==="c"?`<span class="dots">${[...new Set(c)].map(x=>`<i style="background:${x}"></i>`).join("")}</span>`:""}<span class="ck">${sv("check")}</span></button>`};
 $("#tm").innerHTML=["dark","light","custom"].map(i=>`<button class="tc" data-t="${i}">${sv(PAL[i][1])}${PAL[i][0]}</button>`).join("");
 $("#thg").innerHTML=TH.map(i=>card(i,"c")).join("");
+/* clock styles: flip renderer + long-press picker (add new styles to STY) */
+const STY=[["dots","Dot Matrix"],["flip","Flip Clock"]],RM=matchMedia("(prefers-reduced-motion:reduce)");
+function mkFlip(el){el.innerHTML="";el.T=[0,1,2,3].map(()=>{const d=document.createElement("div");d.className="fxd";
+ d.innerHTML='<div class="fxu"><i></i></div><div class="fxl"><i></i></div><div class="fxa"><i></i></div><div class="fxb"><i></i></div>';
+ el.appendChild(d);d.q=[...d.querySelectorAll("i")];return d})}
+function flipSet(el,t,anim){const s=t.replace(":","");el.T.forEach((d,k)=>{const v=s[k],o=d.cur;if(v===o)return;d.cur=v;
+ const[u,l,a,b]=d.q;clearTimeout(d.tm);d.classList.remove("go");
+ if(!anim||o===undefined){u.textContent=l.textContent=a.textContent=b.textContent=v;return}
+ void d.offsetWidth;l.textContent=o;u.textContent=v;a.textContent=o;b.textContent=v;d.classList.add("go");
+ d.tm=setTimeout(()=>{l.textContent=v;d.classList.remove("go")},560)})}
+function flip(t,f){const el=$("#fxc");if(el.T)flipSet(el,t,!f&&!RM.matches&&!document.hidden)}
+const pk=document.createElement("div");pk.id="pk";
+pk.innerHTML='<div class="pkb"></div><div class="pks" role="dialog" aria-label="Clock style"><i class="pkg"></i><h3>Clock style</h3><div class="pkr"></div></div>';
+document.body.appendChild(pk);
+const pr=pk.querySelector(".pkr"),shut=()=>pk.classList.remove("on");
+pk.querySelector(".pkb").onclick=shut;
+const ps=pk.querySelector(".pks");let dy0=null,dx0,dg=0,t0;
+ps.addEventListener("pointerdown",e=>{dx0=e.clientX;dy0=e.clientY;dg=0;t0=e.timeStamp});
+ps.addEventListener("pointermove",e=>{if(dy0==null)return;const dy=e.clientY-dy0,dx=e.clientX-dx0;
+ if(!dg&&dy>8&&dy>Math.abs(dx)*1.3)dg=1;
+ if(dg){ps.style.transition="none";ps.style.transform="translateY("+Math.max(0,dy)+"px)"}});
+const dEnd=e=>{if(dy0==null)return;const dy=e.clientY-dy0;ps.style.transition="";ps.style.transform="";
+ if(dg){ps.dg=1;setTimeout(()=>ps.dg=0,60);if(e.type==="pointerup"&&(dy>70||dy/Math.max(1,e.timeStamp-t0)>.6))shut()}dy0=null;dg=0};
+ps.addEventListener("pointerup",dEnd);ps.addEventListener("pointercancel",dEnd);
+addEventListener("keydown",e=>{if(e.key==="Escape")shut()});
+function pick(){
+ const t=draw.n||"25:00";
+ pr.innerHTML=STY.map(s=>`<button class="pkc${S.cs===s[0]?" on":""}" data-s="${s[0]}" aria-label="${s[1]}"><div class="pkv">${s[0]==="flip"?'<div class="fxc"></div>':"<canvas></canvas>"}</div><b>${s[1]}</b></button>`).join("");
+ pk.classList.add("on");
+ pr.querySelectorAll(".pkc").forEach(b=>{const k=b.dataset.s,p=b.querySelector(".pkv").firstChild;
+  if(k==="flip"){mkFlip(p);flipSet(p,t,false)}else dots(p,t,window.devicePixelRatio||1,DC[0],DC[1]);
+  b.onclick=()=>{if(ps.dg)return;hap("tap");pr.querySelectorAll(".pkc").forEach(c=>c.classList.toggle("on",c===b));
+   if(S.cs!==k){S.cs=k;save();document.documentElement.dataset.cs=k;center();draw(draw.n,true)}setTimeout(shut,170)}});
+ const on=pr.querySelector(".on");if(on)on.scrollIntoView({inline:"center",block:"nearest"})}
+let LP=0,lt,lx,ly;const rg=$("#ring");
+rg.addEventListener("pointerdown",e=>{lx=e.clientX;ly=e.clientY;clearTimeout(lt);lt=setTimeout(()=>{LP=1;hap("tap");pick()},480)});
+rg.addEventListener("pointermove",e=>{if(Math.hypot(e.clientX-lx,e.clientY-ly)>12)clearTimeout(lt)});
+["pointerup","pointercancel"].forEach(n=>document.addEventListener(n,()=>{clearTimeout(lt);if(LP)setTimeout(()=>LP=0,400)},true));
+rg.addEventListener("contextmenu",e=>e.preventDefault());
+
 let DC=["#E4E4E4","#2d2d2d"];
 function theme(){
  const t=S.theme==="light"?"light":S.theme==="custom"?(TH.includes(S.ct)?S.ct:"gruvbox"):"dark",h=document.documentElement;
@@ -319,6 +404,7 @@ function theme(){
  if(draw.n)draw(draw.n,true)}
 document.querySelectorAll("#tm .tc").forEach(b=>b.onclick=()=>{if(S.theme===b.dataset.t)return;hap("tap");S.theme=b.dataset.t;save();theme()});
 document.querySelectorAll("#thg .tc").forEach(b=>b.onclick=()=>{hap("tap");S.theme="custom";S.ct=b.dataset.c;save();theme()});
+if(!STY.some(x=>x[0]===S.cs))S.cs="dots";document.documentElement.dataset.cs=S.cs;mkFlip($("#fxc"));
 theme();
 sets();
 if(S.running&&S.end<=Date.now())finish(true);else if(S.running)lock();
