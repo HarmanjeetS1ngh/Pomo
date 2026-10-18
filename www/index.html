@@ -34,6 +34,7 @@ svg{display:block}
 /* timer view */
 #vt{align-items:center;justify-content:center;gap:28px;overflow:visible}
 #stage{width:var(--rs);aspect-ratio:1;flex:none}
+.ring.rot{transition:none!important}
 .ring{position:relative;width:100%;height:100%;cursor:pointer;
  transform:translate3d(var(--dx,0px),var(--dy,0px),0) scale(var(--s,1));transition:transform .75s cubic-bezier(.22,1,.36,1);will-change:transform}
 #time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
@@ -101,6 +102,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
  #vt{flex-direction:row;gap:clamp(24px,6vw,64px)}
  #ctl{flex-direction:column;gap:14px;min-width:120px}
  #lab{position:absolute;left:0;right:0;margin:0;padding-top:16px;text-align:center;top:calc(50% + var(--rs)*.14);transform-origin:50% 0;transform:scale(calc(1/var(--s,1)));transition:opacity .3s,transform .75s cubic-bezier(.22,1,.36,1)}
+ [data-cs=tetris] #lab{top:calc(50% + var(--hh,calc(var(--rs)*.14)))}
 }
 #sk.h,#rs.h{visibility:hidden}
 .tg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
@@ -280,9 +282,10 @@ document.addEventListener("click",e=>{if(S.running){e.stopPropagation();hap("off
 function center(){
  const r=$("#ring"),b=$("#stage").getBoundingClientRect();
  if(!b.width)return;
- const ls=matchMedia("(orientation:landscape)").matches,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(b.width*.14+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
- r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);draw.k=s}
-let rz;const relayout=()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
+ const ls=matchMedia("(orientation:landscape)").matches,q=S.cs==="tetris"?tetLv(tprog()[1],ls):0,hh=q?Math.max(b.width*.14,b.width*q[1]/q[0]/2):b.width*.14,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(hh+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
+ r.style.setProperty("--hh",hh+"px");r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);draw.k=s}
+let rz,rt;const relayout=()=>{const g=$("#ring");if(S.running){g.classList.add("rot");clearTimeout(rt);rt=setTimeout(()=>g.classList.remove("rot"),350)}cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
+["#app","#vt"].forEach(q=>{const e=document.querySelector(q);if(e)new ResizeObserver(()=>{if(S.running)relayout()}).observe(e)});
 addEventListener("resize",relayout);addEventListener("orientationchange",()=>setTimeout(relayout,150));
 
 const cv=$("#cv"),cx=cv.getContext("2d");
