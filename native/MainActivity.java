@@ -72,6 +72,8 @@ public class MainActivity extends BridgeActivity {
     boolean land = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     int bg = barColor;
     w.setBackgroundDrawable(new ColorDrawable(bg));
+    // WebView surface follows the theme too, so no off-colour strip shows while it resizes on rotation
+    if (getBridge() != null && getBridge().getWebView() != null) getBridge().getWebView().setBackgroundColor(bg);
     w.setStatusBarColor(bg);
     w.setNavigationBarColor(bg);
     if (Build.VERSION.SDK_INT >= 28) {
