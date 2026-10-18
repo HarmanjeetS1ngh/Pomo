@@ -139,11 +139,16 @@ public class MainActivity extends BridgeActivity {
     Window w = getWindow();
     WindowInsetsControllerCompat ic = WindowCompat.getInsetsController(w, d);
     if (!hideBars && tries == 6) ic.hide(WindowInsetsCompat.Type.systemBars()); // kick a stuck state
+    else if (isTablet() && !hideBars && tries > 0) applyBars(true); // tablets only: redo what a rotation does
     else applyVisibility();
     WindowInsetsCompat r = ViewCompat.getRootWindowInsets(d);
     boolean ok = r == null || (r.isVisible(WindowInsetsCompat.Type.statusBars()) != hideBars
       && r.isVisible(WindowInsetsCompat.Type.navigationBars()) != hideBars);
     if (!ok && tries++ < 16) d.postDelayed(visRun, 120); else tries = 0;
+  }
+
+  private boolean isTablet() {
+    return getResources().getConfiguration().smallestScreenWidthDp >= 600;
   }
 
   private void applyVisibility() {
