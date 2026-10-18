@@ -157,14 +157,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 @font-face{font-family:FlipDigits;src:url(fonts/flip-digits.woff2) format("woff2");font-weight:700;font-style:normal;font-display:block}
 /* clock styles: flip clock + long-press picker */
 #fxc{display:none}[data-cs=flip] #cv{display:none}[data-cs=flip] #fxc{display:flex}
-[data-cs=flip] #lab{top:calc(50% + var(--rs)*.176)}[data-cs=flip] .ring{will-change:auto}
+[data-cs=flip] .ring{will-change:auto}
 .ring{-webkit-touch-callout:none}
-.fxc{display:flex;gap:2em;width:100%;aspect-ratio:100/35.2;font-size:calc(var(--w,var(--rs))/100)}
+.fxc{display:flex;gap:2em;width:100%;aspect-ratio:100/28;font-size:calc(var(--w,var(--rs))/100)}
 .fxd{position:relative;flex:1 1 0;perspective:90em}
 .fxd>div{position:absolute;left:0;right:0;height:50%;overflow:hidden}
 .fxu,.fxa{top:0;border-radius:2.6em 2.6em 1em 1em;background:var(--doff);background:linear-gradient(180deg,color-mix(in srgb,var(--doff) 84%,#fff),var(--doff))}
 .fxl,.fxb{top:50%;border-radius:1em 1em 2.6em 2.6em;background:var(--doff);background:linear-gradient(180deg,color-mix(in srgb,var(--doff) 93%,#000),color-mix(in srgb,var(--doff) 80%,#000))}
-.fxd i{position:absolute;left:0;right:0;height:200%;display:flex;align-items:center;justify-content:center;font:normal 700 28em/1 FlipDigits,Arial,Helvetica,sans-serif;font-variant-numeric:tabular-nums;color:var(--f);-webkit-text-stroke:.025em currentColor}
+.fxd i{position:absolute;left:0;right:0;height:200%;display:flex;align-items:center;justify-content:center;font:normal 700 24em/1 FlipDigits,Arial,Helvetica,sans-serif;font-variant-numeric:tabular-nums;color:var(--f);-webkit-text-stroke:.025em currentColor}
 .fxu i,.fxa i{top:0}.fxu i,.fxa i{color:color-mix(in srgb,var(--f) 84%,#fff)}.fxl i,.fxb i{bottom:0}
 .fxa,.fxb{z-index:2;visibility:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .fxa{transform-origin:50% 100%}.fxb{transform-origin:50% 0;transform:rotateX(90deg)}
@@ -187,13 +187,18 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 .pks{touch-action:pan-x}.pkg,.pks h3{touch-action:none}.pkg::before{content:"";position:absolute;inset:-14px -48px}
 .pkg{position:relative;display:block;width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
 .pks h3{margin:0 20px 14px;font-size:15px;font-weight:600}
-.pkr{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 20px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.pkr{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;scroll-behavior:smooth;overscroll-behavior-x:contain;padding:4px 20px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .pkr::-webkit-scrollbar{display:none}
-.pkc{flex:none;width:min(260px,72vw);scroll-snap-align:center;border:2px solid var(--line);border-radius:16px;background:var(--bg);padding:14px 12px 12px;display:flex;flex-direction:column;gap:12px;align-items:center;transition:border-color .2s,transform .15s}
+.pkc{transform:translateZ(0);flex:none;width:min(260px,72vw);scroll-snap-align:center;border:2px solid var(--line);border-radius:16px;background:var(--bg);padding:14px 12px 12px;display:flex;flex-direction:column;gap:12px;align-items:center;transition:border-color .2s,transform .15s}
 .pkc.on{border-color:var(--f)}.pkc:active{transform:scale(.97)}
 .pkc b{font-size:14px;font-weight:600}
-.pkv{--w:calc(min(260px,72vw) - 28px);width:var(--w);height:calc(var(--w)*.352);display:flex;align-items:center}
+.pkv{--w:calc(min(260px,72vw) - 28px);width:var(--w);height:calc(var(--w)*.28);display:flex;align-items:center}
 .pkv canvas{width:100%;aspect-ratio:25/7;display:block}
+#time{transition:transform .3s cubic-bezier(.22,1,.36,1)}
+#time.hold{transform:scale(.93);transition:transform .4s cubic-bezier(.3,.7,.2,1) .08s}
+#cv,#fxc{transition:opacity .16s ease,transform .22s cubic-bezier(.22,1,.36,1)}
+#time.sw #cv,#time.sw #fxc{opacity:0;transform:scale(.92);transition-duration:.09s,.09s}
+@media (prefers-reduced-motion:reduce){#time,#time.hold,#cv,#fxc{transition:none}}
 </style></head>
 <body><div id="app">
 <section class="view on" id="vt"><div id="stage"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
@@ -266,7 +271,7 @@ document.addEventListener("click",e=>{if(S.running){e.stopPropagation();hap("off
 function center(){
  const r=$("#ring"),b=$("#stage").getBoundingClientRect();
  if(!b.width)return;
- const ls=matchMedia("(orientation:landscape)").matches,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(b.width*(S.cs==="flip"?.176:.14)+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
+ const ls=matchMedia("(orientation:landscape)").matches,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(b.width*.14+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
  r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);draw.k=s}
 let rz;const relayout=()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
 addEventListener("resize",relayout);addEventListener("orientationchange",()=>setTimeout(relayout,150));
@@ -361,6 +366,11 @@ function flipSet(el,t,anim){const s=t.replace(":","");el.T.forEach((d,k)=>{const
  if(!anim||o===undefined){u.textContent=l.textContent=a.textContent=b.textContent=v;return}
  void d.offsetWidth;l.textContent=o;u.textContent=v;a.textContent=o;b.textContent=v;d.classList.add("go");
  d.tm=setTimeout(()=>{l.textContent=v;d.classList.remove("go")},560)})}
+function swapStyle(k){const tm=$("#time"),h=document.documentElement;
+ if(RM.matches){h.dataset.cs=k;center();draw(draw.n,true);return}
+ tm.classList.add("sw");
+ setTimeout(()=>{h.dataset.cs=k;center();draw(draw.n,true);void tm.offsetWidth;tm.classList.remove("sw")},90)}
+function unhold(){$("#time").classList.remove("hold")}
 function flip(t,f){const el=$("#fxc");if(el.T)flipSet(el,t,!f&&!RM.matches&&!document.hidden)}
 const pk=document.createElement("div");pk.id="pk";
 pk.innerHTML='<div class="pkb"></div><div class="pks" role="dialog" aria-label="Clock style"><i class="pkg"></i><h3>Clock style</h3><div class="pkr"></div></div>';
@@ -377,18 +387,19 @@ const dEnd=e=>{if(dy0==null)return;const dy=e.clientY-dy0;ps.style.transition=""
 ps.addEventListener("pointerup",dEnd);ps.addEventListener("pointercancel",dEnd);
 addEventListener("keydown",e=>{if(e.key==="Escape")shut()});
 function pick(){
+ if(S.running)return;
  const t=draw.n||"25:00";
  pr.innerHTML=STY.map(s=>`<button class="pkc${S.cs===s[0]?" on":""}" data-s="${s[0]}" aria-label="${s[1]}"><div class="pkv">${s[0]==="flip"?'<div class="fxc"></div>':"<canvas></canvas>"}</div><b>${s[1]}</b></button>`).join("");
  pk.classList.add("on");
  pr.querySelectorAll(".pkc").forEach(b=>{const k=b.dataset.s,p=b.querySelector(".pkv").firstChild;
   if(k==="flip"){mkFlip(p);flipSet(p,t,false)}else dots(p,t,window.devicePixelRatio||1,DC[0],DC[1]);
   b.onclick=()=>{if(ps.dg)return;hap("tap");pr.querySelectorAll(".pkc").forEach(c=>c.classList.toggle("on",c===b));
-   if(S.cs!==k){S.cs=k;save();document.documentElement.dataset.cs=k;center();draw(draw.n,true)}setTimeout(shut,170)}});
+   if(S.cs!==k){S.cs=k;save();swapStyle(k)}setTimeout(shut,60)}});
  const on=pr.querySelector(".on");if(on)on.scrollIntoView({inline:"center",block:"nearest"})}
 let LP=0,lt,lx,ly;const rg=$("#ring");
-rg.addEventListener("pointerdown",e=>{lx=e.clientX;ly=e.clientY;clearTimeout(lt);lt=setTimeout(()=>{LP=1;hap("tap");pick()},480)});
-rg.addEventListener("pointermove",e=>{if(Math.hypot(e.clientX-lx,e.clientY-ly)>12)clearTimeout(lt)});
-["pointerup","pointercancel"].forEach(n=>document.addEventListener(n,()=>{clearTimeout(lt);if(LP)setTimeout(()=>LP=0,400)},true));
+rg.addEventListener("pointerdown",e=>{if(S.running)return;lx=e.clientX;ly=e.clientY;clearTimeout(lt);$("#time").classList.add("hold");lt=setTimeout(()=>{LP=1;hap("tap");pick()},480)});
+rg.addEventListener("pointermove",e=>{if(Math.hypot(e.clientX-lx,e.clientY-ly)>12){clearTimeout(lt);unhold()}});
+["pointerup","pointercancel"].forEach(n=>document.addEventListener(n,()=>{clearTimeout(lt);unhold();if(LP)setTimeout(()=>LP=0,400)},true));
 rg.addEventListener("contextmenu",e=>e.preventDefault());
 
 let DC=["#E4E4E4","#2d2d2d"];
