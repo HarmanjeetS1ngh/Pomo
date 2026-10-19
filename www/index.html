@@ -286,7 +286,7 @@ const sched=()=>nat("alarm",{at:S.end,title:S.mode==="f"?"Focus complete":"Break
 function pause(){nat("alarmCancel");if(!S.running)return;const n=Date.now();credit(n);S.rem=Math.max(1,Math.ceil((S.end-n)/1000));S.running=false;try{wl&&wl.release()}catch(e){}save();render()}
 function start(){try{ac=ac||new AudioContext();ac.resume()}catch(e){}const n=Date.now();S.running=true;S.end=n+S.rem*1000;S.seg=n;lock();sched();save();render()}
 function swap(){S.mode=S.mode==="f"?"b":"f";S.rem=dur(S.mode)}
-function finish(quiet){nat("alarmCancel");tetGo.done=Date.now();setTimeout(()=>{if(S.cs==="tetris")draw(draw.n,true)},1450);credit(S.end);if(S.mode==="f"){const k=key();S.ses[k]=(S.ses[k]||0)+1}S.running=false;swap();try{wl&&wl.release()}catch(e){}if(!quiet)beep();save();render()}
+function finish(quiet){const bg=document.hidden;if(!bg)nat("alarmCancel");tetGo.done=Date.now();setTimeout(()=>{if(S.cs==="tetris")draw(draw.n,true)},1450);credit(S.end);if(S.mode==="f"){const k=key();S.ses[k]=(S.ses[k]||0)+1}S.running=false;swap();try{wl&&wl.release()}catch(e){}if(!quiet&&!bg)beep();save();render()}
 function toggle(){hap(S.running?"off":"on");S.running?pause():start()}
 $("#ring").onclick=()=>{if(LP){LP=0;return}toggle()};$("#go").onclick=toggle;
 $("#rs").onclick=()=>{pause();S.rem=dur(S.mode);save();render()};

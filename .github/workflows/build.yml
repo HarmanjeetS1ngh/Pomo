@@ -16,6 +16,7 @@ jobs:
       - run: mkdir -p android/app/src/main/res/raw && cp native/timer_done.wav android/app/src/main/res/raw/
       - run: sed -i 's|<item name="windowNoTitle">true</item>|&\n        <item name="android:windowBackground">#121212</item>\n        <item name="android:colorBackground">#121212</item>|' android/app/src/main/res/values/styles.xml
       - run: sed -i 's|<style name="AppTheme.NoActionBarLaunch"[^>]*>|&\n        <item name="android:colorBackground">#121212</item>|' android/app/src/main/res/values/styles.xml
+      - run: sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 31/' android/variables.gradle
       - run: cp native/*.java android/app/src/main/java/com/harman/focus/
       - run: npx cap sync android
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug

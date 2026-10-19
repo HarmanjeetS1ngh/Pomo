@@ -65,7 +65,7 @@ public class PremiumHapticsPlugin extends Plugin {
 
   @PluginMethod(returnType = PluginMethod.RETURN_NONE)
   public void alarmCancel(PluginCall call) {
-    TimerAlarmReceiver.cancel(getContext());
+    TimerAlarmReceiver.cancel(getContext(), Boolean.TRUE.equals(call.getBoolean("clear", true)));
   }
 
   private Boolean premium; // cached: hardware doesn't change at runtime

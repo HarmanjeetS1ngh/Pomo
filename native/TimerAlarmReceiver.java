@@ -58,9 +58,10 @@ public class TimerAlarmReceiver extends BroadcastReceiver {
     }
   }
 
-  static void cancel(Context c) {
+  static void cancel(Context c, boolean clearNotif) {
     AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
     if (am != null) am.cancel(alarmIntent(c, "", ""));
+    if (!clearNotif) return;
     NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
     if (nm != null) nm.cancel(NOTIF_ID);
   }
