@@ -49,6 +49,25 @@ public class PremiumHapticsPlugin extends Plugin {
     });
   }
 
+  /** Schedules the background "timer finished" notification (exact alarm). */
+  @PluginMethod(returnType = PluginMethod.RETURN_NONE)
+  public void alarm(PluginCall call) {
+    final Context c = getContext();
+    if (Build.VERSION.SDK_INT >= 33 && c.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+        != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+      getActivity().requestPermissions(new String[] {android.Manifest.permission.POST_NOTIFICATIONS}, 77);
+    }
+    TimerAlarmReceiver.ensureChannel(c);
+    Double at = call.getDouble("at");
+    if (at == null) return;
+    TimerAlarmReceiver.schedule(c, at.longValue(), call.getString("title", "Timer finished"), call.getString("body", ""));
+  }
+
+  @PluginMethod(returnType = PluginMethod.RETURN_NONE)
+  public void alarmCancel(PluginCall call) {
+    TimerAlarmReceiver.cancel(getContext());
+  }
+
   private Boolean premium; // cached: hardware doesn't change at runtime
 
   /**

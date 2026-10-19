@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+  static volatile boolean inForeground = false; // read by TimerAlarmReceiver
   private int barColor = 0xFF121212;
   private boolean light = false;
   private int iT, iB, iL, iR;
@@ -94,6 +95,12 @@ public class MainActivity extends BridgeActivity {
     decor.postDelayed(this::pushInsets, 1500);
     applyBars();
   }
+
+  @Override
+  public void onResume() { super.onResume(); inForeground = true; }
+
+  @Override
+  public void onPause() { inForeground = false; super.onPause(); }
 
   @Override
   public void onConfigurationChanged(Configuration c) {

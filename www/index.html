@@ -281,10 +281,12 @@ let ac,wl;
 function beep(){try{ac=ac||new AudioContext();[0,.25,.5,1.2,1.45,1.7,2.4,2.65,2.9].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=660;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.2,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t+.2);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.2)});navigator.vibrate&&navigator.vibrate([200,100,200,100,200,600,200,100,200,100,200,600,200,100,200,100,200])}catch(e){}}
 async function lock(){try{if(S.running&&navigator.wakeLock)wl=await navigator.wakeLock.request("screen")}catch(e){}}
 function credit(to){if(S.mode!=="f")return;const ms=Math.max(0,Math.min(to,S.end)-S.seg),k=key();S.days[k]=(S.days[k]||0)+ms/1000}
-function pause(){if(!S.running)return;const n=Date.now();credit(n);S.rem=Math.max(1,Math.ceil((S.end-n)/1000));S.running=false;try{wl&&wl.release()}catch(e){}save();render()}
-function start(){try{ac=ac||new AudioContext();ac.resume()}catch(e){}const n=Date.now();S.running=true;S.end=n+S.rem*1000;S.seg=n;lock();save();render()}
+const nat=(m,a)=>{try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PremiumHaptics;if(P&&P[m])P[m](a)}catch(e){}};
+const sched=()=>nat("alarm",{at:S.end,title:S.mode==="f"?"Focus complete":"Break over",body:S.mode==="f"?"Nice work. Time for a break.":"Break's over. Back to focus."});
+function pause(){nat("alarmCancel");if(!S.running)return;const n=Date.now();credit(n);S.rem=Math.max(1,Math.ceil((S.end-n)/1000));S.running=false;try{wl&&wl.release()}catch(e){}save();render()}
+function start(){try{ac=ac||new AudioContext();ac.resume()}catch(e){}const n=Date.now();S.running=true;S.end=n+S.rem*1000;S.seg=n;lock();sched();save();render()}
 function swap(){S.mode=S.mode==="f"?"b":"f";S.rem=dur(S.mode)}
-function finish(quiet){tetGo.done=Date.now();setTimeout(()=>{if(S.cs==="tetris")draw(draw.n,true)},1450);credit(S.end);if(S.mode==="f"){const k=key();S.ses[k]=(S.ses[k]||0)+1}S.running=false;swap();try{wl&&wl.release()}catch(e){}if(!quiet)beep();save();render()}
+function finish(quiet){nat("alarmCancel");tetGo.done=Date.now();setTimeout(()=>{if(S.cs==="tetris")draw(draw.n,true)},1450);credit(S.end);if(S.mode==="f"){const k=key();S.ses[k]=(S.ses[k]||0)+1}S.running=false;swap();try{wl&&wl.release()}catch(e){}if(!quiet)beep();save();render()}
 function toggle(){hap(S.running?"off":"on");S.running?pause():start()}
 $("#ring").onclick=()=>{if(LP){LP=0;return}toggle()};$("#go").onclick=toggle;
 $("#rs").onclick=()=>{pause();S.rem=dur(S.mode);save();render()};
@@ -638,7 +640,7 @@ document.querySelectorAll("#thg .tc").forEach(b=>b.onclick=()=>{hap("tap");S.the
 if(!STY.some(x=>x[0]===S.cs))S.cs="dots";document.documentElement.dataset.cs=S.cs;mkFlip($("#fxc"));mkHg($("#hgc"));
 theme();
 sets();
-if(S.running&&S.end<=Date.now())finish(true);else if(S.running)lock();
+if(S.running&&S.end<=Date.now())finish(true);else if(S.running){lock();sched()}
 render();
 function slider(box,anim){let p=box.querySelector(":scope>.sp"),a=box.querySelector(".on");
  if(!p){p=document.createElement("i");p.className="sp";box.prepend(p)}
