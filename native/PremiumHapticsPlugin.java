@@ -49,8 +49,32 @@ public class PremiumHapticsPlugin extends Plugin {
     });
   }
 
+  private Boolean premium; // cached: hardware doesn't change at runtime
+
+  /**
+   * True only for phones with a real haptic engine (voice-coil/LRA style): amplitude control plus
+   * the crisp CLICK / TICK / LOW_TICK primitives. Cheap single-ERM-motor phones fail this check.
+   */
+  private boolean isPremium() {
+    if (premium != null) return premium;
+    boolean ok = false;
+    try {
+      if (Build.VERSION.SDK_INT >= 30) {
+        Vibrator vib = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        ok = vib != null && vib.hasVibrator() && vib.hasAmplitudeControl()
+          && vib.areAllPrimitivesSupported(
+            VibrationEffect.Composition.PRIMITIVE_CLICK,
+            VibrationEffect.Composition.PRIMITIVE_TICK,
+            VibrationEffect.Composition.PRIMITIVE_LOW_TICK);
+      }
+    } catch (Throwable ignored) {}
+    premium = ok;
+    return ok;
+  }
+
   @PluginMethod(returnType = PluginMethod.RETURN_NONE)
   public void play(PluginCall call) {
+    if (!isPremium()) return; // budget motor: no tap haptics at all
     final String t = call.getString("t", "step");
     final View v = getBridge().getWebView();
     v.post(() -> {
