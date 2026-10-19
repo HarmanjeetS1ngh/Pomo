@@ -297,9 +297,12 @@ function center(){
  const r=$("#ring"),b=$("#stage").getBoundingClientRect();
  if(!b.width)return;
  const ls=matchMedia("(orientation:landscape)").matches,q=S.cs==="tetris"?tetLv(tprog()[1],ls):0,hh=q?Math.max(b.width*.14,b.width*q[1]/q[0]/2):b.width*(S.cs==="hourglass"?.39:.14),s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(hh+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
- r.style.setProperty("--hh",hh+"px");r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);draw.k=s}
-let rz,rt;const holdRot=ms=>{const g=$("#ring"),u=Date.now()+ms;g.classList.add("rot");if(u>(holdRot.u||0)){holdRot.u=u;clearTimeout(rt);rt=setTimeout(()=>{holdRot.u=0;g.classList.remove("rot")},ms)}};const relayout=()=>{if(S.running)holdRot(350);center();cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
-matchMedia("(orientation:landscape)").addEventListener("change",()=>{holdRot(900);center()});
+ r.style.setProperty("--hh",hh+"px");r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);center.v=b.width*(S.running?s:1);draw.k=s}
+let LL=matchMedia("(orientation:landscape)").matches,RA=0;
+/* rotation FLIP: start from the old on-screen size and ease to the new one, identical both ways */
+const rotFlip=()=>{const l=matchMedia("(orientation:landscape)").matches;if(l===LL)return;LL=l;const pv=center.v;center();if(!S.running||!pv||RM.matches)return;const r=$("#ring"),w=$("#stage").getBoundingClientRect().width,fs=r.style.getPropertyValue("--s");if(!w)return;r.classList.add("rot");r.style.setProperty("--s",pv/w);void r.offsetWidth;r.classList.remove("rot");r.style.transitionDuration=".8s";r.style.transitionTimingFunction="cubic-bezier(.45,0,.2,1)";r.style.setProperty("--s",fs);RA=Date.now()+900;setTimeout(()=>{r.style.transitionDuration="";r.style.transitionTimingFunction=""},950)};
+let rz,rt;const holdRot=ms=>{const g=$("#ring"),u=Date.now()+ms;g.classList.add("rot");if(u>(holdRot.u||0)){holdRot.u=u;clearTimeout(rt);rt=setTimeout(()=>{holdRot.u=0;g.classList.remove("rot")},ms)}};const relayout=()=>{rotFlip();if(S.running&&Date.now()>RA)holdRot(350);center();cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
+matchMedia("(orientation:landscape)").addEventListener("change",()=>{rotFlip();if(Date.now()>RA){holdRot(900);center()}});
 ["#app","#vt"].forEach(q=>{const e=document.querySelector(q);if(e)new ResizeObserver(()=>{if(S.running)relayout()}).observe(e)});
 /* native (Android) pushes system-bar insets here; window stays edge-to-edge so rotation never resizes the WebView */
 const insSet=(o,save)=>{const R=document.documentElement;for(const m of["p","l"])if(o[m])["t","b","l","r"].forEach((k,n)=>R.style.setProperty("--sa"+k+"-"+m,Math.max(0,+o[m][n]||0)+"px"));if(save)try{localStorage.setItem("focus-ins4",JSON.stringify(o))}catch(e){}};
