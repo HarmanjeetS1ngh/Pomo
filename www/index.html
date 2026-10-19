@@ -36,7 +36,7 @@ svg{display:block}
 #stage{width:var(--rs);aspect-ratio:1;flex:none}
 :root{--sat:var(--sat-p,env(safe-area-inset-top,0px));--sab:var(--sab-p,env(safe-area-inset-bottom,0px));--sal:var(--sal-p,env(safe-area-inset-left,0px));--sar:var(--sar-p,env(safe-area-inset-right,0px))}
 @media (orientation:landscape){:root{--sat:var(--sat-l,env(safe-area-inset-top,0px));--sab:var(--sab-l,env(safe-area-inset-bottom,0px));--sal:var(--sal-l,env(safe-area-inset-left,0px));--sar:var(--sar-l,env(safe-area-inset-right,0px))}}
-.ring.rot{transition:none!important}
+.ring.rot{transition:none!important}.ring.rot #lab{transition:opacity .3s}
 .ring{position:relative;width:100%;height:100%;cursor:pointer;
  transform:translate3d(var(--dx,0px),var(--dy,0px),0) scale(var(--s,1));transition:transform .75s cubic-bezier(.22,1,.36,1);will-change:transform}
 #time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
@@ -584,8 +584,8 @@ function tet(c,d,e,D,pal,off){
  x.globalAlpha=1}
 function tprog(){const D=dur(S.mode),r=S.running?Math.max(0,(S.end-Date.now())/1000):S.rem;return[Math.min(D,Math.max(0,D-r)),D]}
 function tetFade(ms,fn){if(tet.busy)return;tet.busy=1;cv.classList.add("tmx");setTimeout(()=>{tet.busy=0;tet.lk=null;center();tetDraw();requestAnimationFrame(()=>{cv.classList.remove("tmx");fn&&fn()})},ms)}
-const tetSnap=()=>{if(Date.now()<(tetSnap.t||0))return;const V=document.querySelector(".view.on");if(!V)return;const a=$("#ring").getBoundingClientRect(),b=$("#ctl").getBoundingClientRect();tetSnap.v={id:V.id,ring:a,ctl:b,kids:[...V.children].slice(0,40).map(e=>e.getBoundingClientRect())}};
-setInterval(()=>{if(S.cs==="tetris"&&!document.hidden)tetSnap()},300);setTimeout(tetSnap,300);
+const clk=()=>[$("#hgc"),$("#fxc"),cv].find(e=>e&&e.offsetWidth),tetSnap=()=>{if(Date.now()<(tetSnap.t||0))return;const V=document.querySelector(".view.on");if(!V)return;const a=$("#ring").getBoundingClientRect(),b=$("#ctl").getBoundingClientRect(),k=clk(),l=$("#lab");tetSnap.v={id:V.id,ring:a,ctl:b,clk:k&&k.getBoundingClientRect(),lab:l.getBoundingClientRect(),kids:[...V.children].slice(0,40).map(e=>e.getBoundingClientRect())}};
+setInterval(()=>{if(!document.hidden)tetSnap()},150);setTimeout(tetSnap,300);
 /* whole-app rotation animation: every view glides from its old layout to the new one */
 LSM.addEventListener("change",()=>{if(RM.matches)return;
  const V=document.querySelector(".view.on"),o=tetSnap.v;tetSnap.t=Date.now()+1200;if(!V||!o||o.id!==V.id)return;
@@ -596,9 +596,12 @@ LSM.addEventListener("change",()=>{if(RM.matches)return;
   if(S.running){g.classList.add("rot");clearTimeout(rt);rt=setTimeout(()=>g.classList.remove("rot"),700)}
   center();
   const n=g.getBoundingClientRect(),a=o.ring,[x0,y0]=C(a),[x1,y1]=C(n),q=S.running?(parseFloat(g.style.getPropertyValue("--s"))||1):1;
-  if(n.width)$("#time").animate([{transform:`translate(${(x0-x1)/q}px,${(y0-y1)/q}px) scale(${a.width/n.width})`},{transform:"none"}],E);
+  const ck=clk(),cn=ck&&ck.getBoundingClientRect(),ca=o.clk;
+  if(cn&&cn.width&&ca&&ca.width){const[cx0,cy0]=C(ca),[cx1,cy1]=C(cn);ck.animate([{transform:`translate(${(cx0-cx1)/q}px,${(cy0-cy1)/q}px) scale(${ca.width/cn.width})`},{transform:"none"}],E)}
+  else if(n.width)$("#time").animate([{transform:`translate(${(x0-x1)/q}px,${(y0-y1)/q}px) scale(${a.width/n.width})`},{transform:"none"}],E);
+  {const l=$("#lab"),ln=l.getBoundingClientRect();if(o.lab&&ln.width){const[lx0,ly0]=C(o.lab),[lx1,ly1]=C(ln);l.animate([{transform:`translate(${lx0-lx1}px,${ly0-ly1}px)`},{transform:"none"}],{...E,composite:"add"})}}
   if(!S.running)slide($("#ctl"),o.ctl,true);
-  [cv,$("#fxc")].forEach(e=>{if(e.offsetWidth)e.animate([{opacity:0},{opacity:0,offset:.3},{opacity:1}],{duration:520,easing:"ease-out"})})
+  if(S.cs==="tetris"&&cv.offsetWidth)cv.animate([{opacity:.45},{opacity:1}],{duration:380,easing:"ease-out"})
  }else[...V.children].slice(0,40).forEach((e,i)=>{if(o.kids[i])slide(e,o.kids[i],true)});
  $("nav").animate([{opacity:0},{opacity:1}],{duration:420,easing:"ease-out"})});
 function tetDraw(){const h=!S.running&&Date.now()-(tetGo.done||0)<1400,pd=dur(S.mode==="f"?"b":"f"),[e,D]=h?[pd,pd]:tprog();
