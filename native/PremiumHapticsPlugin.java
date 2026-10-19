@@ -58,9 +58,10 @@ public class PremiumHapticsPlugin extends Plugin {
       getActivity().requestPermissions(new String[] {android.Manifest.permission.POST_NOTIFICATIONS}, 77);
     }
     TimerAlarmReceiver.ensureChannel(c);
-    Double at = call.getDouble("at");
-    if (at == null) return;
-    TimerAlarmReceiver.schedule(c, at.longValue(), call.getString("title", "Timer finished"), call.getString("body", ""));
+    // Read as a long: the epoch-ms value arrives as a Long, which PluginCall.getDouble() silently drops.
+    long at = call.getData().optLong("at", 0);
+    if (at <= 0) return;
+    TimerAlarmReceiver.schedule(c, at, call.getString("title", "Timer finished"), call.getString("body", ""));
   }
 
   @PluginMethod(returnType = PluginMethod.RETURN_NONE)

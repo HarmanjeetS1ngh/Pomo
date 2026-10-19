@@ -95,11 +95,41 @@ public class MainActivity extends BridgeActivity {
     decor.postDelayed(this::pushInsets, 1500);
     applyBars();
     TimerAlarmReceiver.ensureChannel(this);
-    // Ask for notification permission at first launch (Android 13+), not only when a timer starts.
+    askFirstLaunchPermissions();
+  }
+
+  // First launch only: notifications (Android 13+), then the one-tap "run in background" dialog,
+  // so timers keep working with the screen off without the user digging through Settings.
+  private void askFirstLaunchPermissions() {
     if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
         != android.content.pm.PackageManager.PERMISSION_GRANTED) {
       requestPermissions(new String[] {android.Manifest.permission.POST_NOTIFICATIONS}, 77);
+    } else {
+      askBackground();
     }
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
+    super.onRequestPermissionsResult(code, perms, res);
+    if (code == 77) askBackground();
+  }
+
+  @SuppressWarnings("BatteryLife")
+  private void askBackground() {
+    final android.content.SharedPreferences sp = getSharedPreferences("focus", MODE_PRIVATE);
+    if (sp.getBoolean("bgAsked", false)) return;
+    try {
+      android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);
+      if (pm == null || pm.isIgnoringBatteryOptimizations(getPackageName())) return;
+      sp.edit().putBoolean("bgAsked", true).apply();
+      getWindow().getDecorView().postDelayed(() -> {
+        try {
+          startActivity(new android.content.Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            android.net.Uri.parse("package:" + getPackageName())));
+        } catch (Exception ignored) {}
+      }, 600);
+    } catch (Exception ignored) {}
   }
 
   @Override
