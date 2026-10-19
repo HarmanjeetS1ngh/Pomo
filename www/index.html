@@ -103,7 +103,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
  .view{padding:20px 28px}
  #vt{flex-direction:row;gap:clamp(24px,6vw,64px)}
  #ctl{flex-direction:column;gap:14px;min-width:120px}
- #lab{position:absolute;left:0;right:0;margin:0;padding-top:16px;text-align:center;top:calc(50% + var(--rs)*.14);transform-origin:50% 0;transform:scale(calc(1/var(--s,1)));transition:opacity .3s,transform .75s cubic-bezier(.22,1,.36,1)}
+ #lab{position:absolute;left:0;right:0;margin:0;padding-top:16px;text-align:center;top:calc(50% + var(--rs)*.14);transform-origin:50% 0;transform:scale(calc(1/var(--s,1)));transition:opacity .3s,transform .32s cubic-bezier(.3,0,.1,1)}
  [data-cs=tetris] #lab{top:calc(50% + var(--hh,calc(var(--rs)*.14)))}
  [data-cs=hourglass] #lab{top:calc(50% + var(--hh,calc(var(--rs)*.39)))}
 }
@@ -300,7 +300,7 @@ function center(){
  r.style.setProperty("--hh",hh+"px");r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);center.v=b.width*(S.running?s:1);draw.k=s}
 let LL=matchMedia("(orientation:landscape)").matches,RA=0;
 /* rotation FLIP: start from the old on-screen size and ease to the new one, identical both ways */
-const rotFlip=()=>{const l=matchMedia("(orientation:landscape)").matches;if(l===LL)return;LL=l;const pv=center.v;center();if(!S.running||!pv||RM.matches)return;const r=$("#ring"),w=$("#stage").getBoundingClientRect().width,fs=r.style.getPropertyValue("--s");if(!w)return;r.classList.add("rot");r.style.setProperty("--s",pv/w);void r.offsetWidth;r.classList.remove("rot");r.style.transitionDuration=".8s";r.style.transitionTimingFunction="cubic-bezier(.45,0,.2,1)";r.style.setProperty("--s",fs);RA=Date.now()+900;setTimeout(()=>{r.style.transitionDuration="";r.style.transitionTimingFunction=""},950)};
+const rotFlip=()=>{const l=matchMedia("(orientation:landscape)").matches;if(l===LL)return;LL=l;const pv=center.v;center();if(!S.running||!pv||RM.matches)return;const r=$("#ring"),w=$("#stage").getBoundingClientRect().width,fs=r.style.getPropertyValue("--s");if(!w)return;r.classList.add("rot");r.style.setProperty("--s",pv/w);void r.offsetWidth;r.classList.remove("rot");r.style.transitionDuration=".32s";r.style.transitionTimingFunction="cubic-bezier(.3,0,.1,1)";r.style.setProperty("--s",fs);RA=Date.now()+380;setTimeout(()=>{r.style.transitionDuration="";r.style.transitionTimingFunction=""},400)};
 let rz,rt;const holdRot=ms=>{const g=$("#ring"),u=Date.now()+ms;g.classList.add("rot");if(u>(holdRot.u||0)){holdRot.u=u;clearTimeout(rt);rt=setTimeout(()=>{holdRot.u=0;g.classList.remove("rot")},ms)}};const relayout=()=>{rotFlip();if(S.running&&Date.now()>RA)holdRot(350);center();cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
 matchMedia("(orientation:landscape)").addEventListener("change",()=>{rotFlip();if(Date.now()>RA){holdRot(900);center()}});
 ["#app","#vt"].forEach(q=>{const e=document.querySelector(q);if(e)new ResizeObserver(()=>{if(S.running)relayout()}).observe(e)});
@@ -594,12 +594,12 @@ LSM.addEventListener("change",()=>{if(RM.matches)return;
  if(Date.now()-(LSM.last||0)<250)return;LSM.last=Date.now();
  const V=document.querySelector(".view.on"),o=tetSnap.v;tetSnap.t=Date.now()+1200;if(!V||!o||o.id!==V.id)return;
  if(S.cs==="tetris")tet.rot=1;
- const E={duration:520,easing:"cubic-bezier(.22,1,.36,1)"},g=$("#ring"),C=r=>[r.left+r.width/2,r.top+r.height/2];
+ const E={duration:300,easing:"cubic-bezier(.22,1,.36,1)"},g=$("#ring"),C=r=>[r.left+r.width/2,r.top+r.height/2];
  const slide=(el,a,fade)=>{const n=el.getBoundingClientRect();if(!n.width||!a.width)return;const[x0,y0]=C(a),[x1,y1]=C(n);el.animate([{opacity:fade?0:1,transform:`translate(${x0-x1}px,${y0-y1}px)`},{opacity:1,transform:"none"}],E)};
  if(V.id==="vt"){
   const fl=S.running&&Date.now()<RA;if(!fl)holdRot(900);
   center();
-  if(fl){$("#lab").animate([{opacity:0},{opacity:0,offset:.35},{opacity:1}],{duration:800,easing:"ease-out"});if(S.cs==="tetris"&&cv.offsetWidth)cv.animate([{opacity:.45},{opacity:1}],{duration:500,easing:"ease-out"})}else{
+  if(fl){$("#lab").animate([{opacity:0},{opacity:0,offset:.2},{opacity:1}],{duration:350,easing:"ease-out"});if(S.cs==="tetris"&&cv.offsetWidth)cv.animate([{opacity:.45},{opacity:1}],{duration:500,easing:"ease-out"})}else{
   const n=g.getBoundingClientRect(),a=o.ring,[x0,y0]=C(a),[x1,y1]=C(n),q=S.running?(parseFloat(g.style.getPropertyValue("--s"))||1):1;
   const ck=clk(),cn=ck&&ck.getBoundingClientRect(),ca=o.clk;
   if(cn&&cn.width&&ca&&ca.width){const[cx0,cy0]=C(ca),[cx1,cy1]=C(cn);ck.style.willChange="transform";const an=ck.animate([{transform:`translate(${(cx0-cx1)/q}px,${(cy0-cy1)/q}px) scale(${ca.width/cn.width})`},{transform:"none"}],E);an.onfinish=an.oncancel=()=>{ck.style.willChange=""}}

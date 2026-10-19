@@ -68,12 +68,15 @@ public class MainActivity extends BridgeActivity {
   public void setBars(int color, boolean l) {
     barColor = color;
     light = l;
+    getSharedPreferences("focus", MODE_PRIVATE).edit().putInt("bar", color).putBoolean("light", l).apply();
     applyBars();
   }
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     registerPlugin(PremiumHapticsPlugin.class);
+    barColor = getSharedPreferences("focus", MODE_PRIVATE).getInt("bar", barColor);
+    light = getSharedPreferences("focus", MODE_PRIVATE).getBoolean("light", false);
     super.onCreate(savedInstanceState);
     // Always edge-to-edge: showing/hiding bars on rotation never resizes the WebView (no jump);
     // the web layer pads itself using the insets pushed below.
@@ -125,6 +128,7 @@ public class MainActivity extends BridgeActivity {
     boolean land = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     int bg = barColor;
     w.setBackgroundDrawable(new ColorDrawable(bg));
+    w.getDecorView().setBackgroundColor(bg);
     // system rotation animation paints this colour behind the app (otherwise a grey theme default)
     if (Build.VERSION.SDK_INT >= 33) setTaskDescription(new android.app.ActivityManager.TaskDescription.Builder().setBackgroundColor(bg).build());
     // WebView surface follows the theme too, so no off-colour strip shows while it resizes on rotation
