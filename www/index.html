@@ -105,6 +105,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
  #ctl{flex-direction:column;gap:14px;min-width:120px}
  #lab{position:absolute;left:0;right:0;margin:0;padding-top:16px;text-align:center;top:calc(50% + var(--rs)*.14);transform-origin:50% 0;transform:scale(calc(1/var(--s,1)));transition:opacity .3s,transform .75s cubic-bezier(.22,1,.36,1)}
  [data-cs=tetris] #lab{top:calc(50% + var(--hh,calc(var(--rs)*.14)))}
+ [data-cs=hourglass] #lab{top:calc(50% + var(--hh,calc(var(--rs)*.39)))}
 }
 #sk.h,#rs.h{visibility:hidden}
 .tg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
@@ -198,13 +199,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 #pk.on .pks{transform:none}
 .pks{touch-action:pan-x}.pkg,.pks h3{touch-action:none}.pkg::before{content:"";position:absolute;inset:-14px -48px}
 .pkg{position:relative;display:block;width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
-.pks h3{margin:0 20px 14px;font-size:15px;font-weight:600}
-.pkr{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;scroll-behavior:smooth;overscroll-behavior-x:contain;padding:4px 20px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.pks h3{margin:0 16px 10px;font-size:14px;font-weight:600}
+.pkr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-height:calc(100dvh - 130px);overflow-y:auto;overscroll-behavior:contain;padding:4px 16px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .pkr::-webkit-scrollbar{display:none}
-.pkc{transform:translateZ(0);flex:none;width:min(260px,72vw);scroll-snap-align:center;border:2px solid var(--line);border-radius:16px;background:var(--bg);padding:14px 12px 12px;display:flex;flex-direction:column;gap:12px;align-items:center;transition:border-color .2s,transform .15s}
+.pkc{transform:translateZ(0);min-width:0;border:2px solid var(--line);border-radius:14px;background:var(--bg);padding:10px 8px 9px;display:flex;flex-direction:column;gap:8px;align-items:center;transition:border-color .2s,transform .15s}
 .pkc.on{border-color:var(--f)}.pkc:active{transform:scale(.97)}
-.pkc b{font-size:14px;font-weight:600}
-.pkv{--w:calc(min(260px,72vw) - 28px);width:var(--w);height:calc(var(--w)*.28);display:flex;align-items:center}
+.pkc b{font-size:13px;font-weight:600}
+.pkv{--w:max(60px,min(calc((min(100vw,560px) - 32px - 10px)/2 - 20px),calc((100dvh - 230px)*.5)));width:var(--w);height:calc(var(--w)*.42);display:flex;align-items:center;justify-content:center}
 .pkv canvas{width:100%;aspect-ratio:25/7;display:block}
 #time{transition:transform .3s cubic-bezier(.22,1,.36,1)}
 #time.hold{transform:scale(.93);transition:transform .4s cubic-bezier(.3,.7,.2,1) .08s}
@@ -212,10 +213,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:32px;border:0;border-radiu
 [data-cs=tetris] #cv.tmx{opacity:0;transform:scale(.92);transition-duration:.2s,.2s}
 #time.sw #cv,#time.sw #fxc{opacity:0;transform:scale(.92);transition-duration:.09s,.09s}
 @media (prefers-reduced-motion:reduce){#time,#time.hold,#cv,#fxc{transition:none}}
+/* hourglass clock style: two diamond cell grids */
+#hgc{display:none}[data-cs=hourglass] #cv{display:none}[data-cs=hourglass] #hgc{display:block;width:calc(var(--w,var(--rs))*.5)}@media (orientation:landscape){[data-cs=hourglass] #hgc{width:calc(var(--w,var(--rs))*.4)}}
+.pkv .hc.hx{display:none}.pkv .hc.hy{transform:scale(3);transform-box:fill-box;transform-origin:center}.pkv .hgc{display:block;height:100%;width:auto;aspect-ratio:160/312}
+.hgc{--sc:var(--f);transition:opacity .09s,transform .09s}.hgc[data-m=b]{--sc:var(--b)}
+#time.sw #hgc{opacity:0;transform:scale(.92)}
+.hgw{width:100%;height:100%;aspect-ratio:160/312;transition:transform .75s cubic-bezier(.65,0,.35,1)}
+.hgc svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--sc) 35%,transparent))}
+.hgg{fill:var(--bg);stroke:var(--dim);stroke-opacity:.7;stroke-width:1.6;stroke-linejoin:round}
+.hc{fill:var(--doff);transition:fill .25s}.hc.on{fill:var(--sc)}.hgn{transition:fill .2s ease!important}
+.hgc.cs .hc{transition-duration:.12s}.hgc.ns .hc{transition:none!important}
+.hgd{opacity:0}.hgd rect{fill:var(--sc)}
 </style></head>
 <body><div id="app">
 <section class="view on" id="vt"><div id="stage"><div class="ring" id="ring" role="button" tabindex="0" aria-label="Start or pause">
-<div id="time"><canvas id="cv"></canvas><div class="fxc" id="fxc" aria-hidden="true"></div><span id="lab">Focus</span></div></div></div>
+<div id="time"><canvas id="cv"></canvas><div class="fxc" id="fxc" aria-hidden="true"></div><div class="hgc" id="hgc" aria-hidden="true"></div><span id="lab">Focus</span></div></div></div>
 <div id="ctl"><button class="sm" id="rs">Reset</button><button id="go">Start</button><button class="sm" id="sk">Skip</button></div></section>
 <section class="view" id="vs"></section>
 <section class="view" id="vg">
@@ -284,7 +296,7 @@ document.addEventListener("click",e=>{if(S.running){e.stopPropagation();hap("off
 function center(){
  const r=$("#ring"),b=$("#stage").getBoundingClientRect();
  if(!b.width)return;
- const ls=matchMedia("(orientation:landscape)").matches,q=S.cs==="tetris"?tetLv(tprog()[1],ls):0,hh=q?Math.max(b.width*.14,b.width*q[1]/q[0]/2):b.width*.14,s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(hh+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
+ const ls=matchMedia("(orientation:landscape)").matches,q=S.cs==="tetris"?tetLv(tprog()[1],ls):0,hh=q?Math.max(b.width*.14,b.width*q[1]/q[0]/2):b.width*(S.cs==="hourglass"?.39:.14),s=ls?Math.max(1,Math.min(innerWidth*.96/b.width,(innerHeight/2-10)/(hh+33))):1,dx=S.running?innerWidth/2-(b.left+b.width/2):0,dy=S.running?innerHeight/2-(b.top+b.height/2):0;
  r.style.setProperty("--hh",hh+"px");r.style.setProperty("--dx",dx+"px");r.style.setProperty("--dy",dy+"px");r.style.setProperty("--s",S.running?s:1);draw.k=s}
 let rz,rt;const relayout=()=>{const g=$("#ring");if(S.running){g.classList.add("rot");clearTimeout(rt);rt=setTimeout(()=>g.classList.remove("rot"),350)}center();cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{center();draw(draw.n,true)})};
 matchMedia("(orientation:landscape)").addEventListener("change",()=>{const g=$("#ring");g.classList.add("rot");clearTimeout(rt);rt=setTimeout(()=>g.classList.remove("rot"),700);center()});
@@ -311,6 +323,7 @@ function draw(t,f){
  draw.n=t;
  if(S.cs==="flip"){flip(t,f);return}
  if(S.cs==="tetris"){tetGo(f);return}
+ if(S.cs==="hourglass"){hg();return}
  if(!t||(!f&&draw.l===t))return;draw.l=t;
  dots(cv,t,(window.devicePixelRatio||1)*(draw.k||1),DC[0],DC[1]);
 }
@@ -378,7 +391,7 @@ const card=(id,at)=>{const [n,i,c,m]=PAL[id];return `<button class="tc" data-${a
 $("#tm").innerHTML=["dark","light","custom"].map(i=>`<button class="tc" data-t="${i}">${sv(PAL[i][1])}${PAL[i][0]}</button>`).join("");
 $("#thg").innerHTML=TH.map(i=>card(i,"c")).join("");
 /* clock styles: flip renderer + long-press picker (add new styles to STY) */
-const STY=[["dots","Dot Matrix"],["flip","Flip Clock"],["tetris","Tetris"]],RM=matchMedia("(prefers-reduced-motion:reduce)");
+const STY=[["dots","Dot Matrix"],["flip","Flip Clock"],["tetris","Tetris"],["hourglass","Hourglass"]],RM=matchMedia("(prefers-reduced-motion:reduce)");
 function mkFlip(el){el.innerHTML="";el.T=[0,1,2,3].map(()=>{const d=document.createElement("div");d.className="fxd";
  d.innerHTML='<div class="fxu"><i></i></div><div class="fxl"><i></i></div><div class="fxa"><i></i></div><div class="fxb"><i></i></div>';
  el.appendChild(d);d.q=[...d.querySelectorAll("i")];return d})}
@@ -387,10 +400,72 @@ function flipSet(el,t,anim){const s=t.replace(":","");el.T.forEach((d,k)=>{const
  if(!anim||o===undefined){u.textContent=l.textContent=a.textContent=b.textContent=v;return}
  void d.offsetWidth;l.textContent=o;u.textContent=v;a.textContent=o;b.textContent=v;d.classList.add("go");
  d.tm=setTimeout(()=>{l.textContent=v;d.classList.remove("go")},560)})}
+let HN=0;
+const G=18,GG=G*G,HS=GG,Q=100/G,K45=Q*.7071,hgO=(()=>{const T=[],B=[];for(let r=0;r<G;r++)for(let c=0;c<G;c++){const i=r*G+c,d=r+c,u=Math.abs(c-r);T.push([i,-d-.3*u+.01*c]);B.push([i,-d+.3*u+.01*c])}
+ const f=a=>a.sort((x,y)=>x[1]-y[1]).map(x=>x[0]);return[f(T),f(B)]})(),hgRT=[],hgRB=[];hgO[0].forEach((v,k)=>hgRT[v]=k);hgO[1].forEach((v,k)=>hgRB[v]=k);
+function mkHg(el){++HN;const cx=80,y1=80,h=76.4,a=6.4,y2=y1+2*h,N=y1+h,T=y1-h,B=y2+h,R=cx+h,L=cx-h,w=Q*.8;
+ const P=`M${cx-a} ${T+a}Q${cx} ${T} ${cx+a} ${T+a}L${R-a} ${y1-a}Q${R} ${y1} ${R-a} ${y1+a}L${cx+a} ${N-a}Q${cx+1} ${N} ${cx+a} ${N+a}L${R-a} ${y2-a}Q${R} ${y2} ${R-a} ${y2+a}L${cx+a} ${B-a}Q${cx} ${B} ${cx-a} ${B-a}L${L+a} ${y2+a}Q${L} ${y2} ${L+a} ${y2-a}L${cx-a} ${N+a}Q${cx-1} ${N} ${cx-a} ${N-a}L${L+a} ${y1+a}Q${L} ${y1} ${L+a} ${y1-a}Z`;
+ const g=cy=>{let q=`<g transform="translate(${cx} ${cy}) rotate(45)">`;for(let r=0;r<G;r++)for(let c=0;c<G;c++)q+=`<rect class="hc" x="${(c-(G-1)/2)*Q-w/2}" y="${(r-(G-1)/2)*Q-w/2}" width="${w}" height="${w}" rx="${w*.28}"/>`;return q+"</g>"};
+ const nk=`<rect x="${-w/2}" y="${-w/2}" width="${w}" height="${w}" rx="${w*.28}" transform="translate(${cx} ${N}) rotate(45)"/>`;
+ el.innerHTML=`<div class="hgw"><svg viewBox="0 0 160 312"><path class="hgg" d="${P}"/>${g(y1)}${g(y2)}${nk.replace("<rect","<rect class=\"hc hgn\"")}<g class="hgd">${nk}</g></svg></div>`;
+ const gs=el.querySelectorAll("g[transform]");el.s=void 0;el.w=el.firstChild;el.TC=[...gs[0].children];el.BC=[...gs[1].children];el.NK=el.querySelector(".hgn");el.D=el.querySelector(".hgd");el.ts=new Set();el.bs=new Set();el.L=0;el.nx=0;el.fl_=[];el.y2=y2;el.N=N}
+function hgDiff(cells,old,nw,rk,cas,land){
+ for(const i of old)if(!nw.has(i)){const e=cells[i].style;e.transitionDuration=cas?"0s":".45s";e.transitionDelay=(cas?rk[i]*1.4:0)+"ms";cells[i].classList.remove("on")}
+ for(const i of nw)if(!old.has(i)){const e=cells[i].style;e.transitionDuration=cas?"":"0s";e.transitionDelay=(cas?rk[i]*2.6:land||0)+"ms";cells[i].classList.add("on")}}
+function hgPut(el,K,M,o){o=o||{};const t=new Set(hgO[0].slice(0,K)),b=new Set(hgO[1].slice(0,M));
+ hgDiff(el.TC,el.ts,t,hgRT,o.cas,0);hgDiff(el.BC,el.bs,b,hgRB,o.cas,o.land);el.ts=t;el.bs=b}
+/* one discrete grain: leaves the top surface, slides down the funnel, falls through the neck in one accelerating motion, then settles into its cell */
+function hgDrop(el,n,land){const r=n/G|0,c=n%G;let ys=el.y2+(G-1)*K45;
+ for(const i of el.bs){if(i===n)continue;const rr=i/G|0,cc=i%G;if(Math.abs(cc-rr)<2){const v=el.y2+(rr+cc-(G-1))*K45;if(v<ys)ys=v}}
+ const fy=el.y2+(r+c-(G-1))*K45-el.N,fx=(c-r)*K45,cy=Math.max(Math.min(fy,ys-Q*1.1-el.N),Math.min(6,fy)),
+  h1=Math.max(1,el.N-(el.y2-152.8+(G-1)*K45)),H=h1+cy,F=[];
+ for(let k=0;k<=12;k++){const t=k/12,yy=H*t*t;F.push({transform:`translate(0px,${yy-h1}px)`,opacity:1,offset:.84*t})}
+ F.push({transform:`translate(${fx}px,${fy}px)`,opacity:1,offset:1});F[12].easing="ease-out";
+ const d=el.D.cloneNode(true);el.D.parentNode.appendChild(d);
+ const end=()=>{d.remove();land()};
+ if(d.animate){const an=d.animate(F,{duration:720});an.onfinish=end}else end()}
+/* clear in-flight grains and the release queue */
+function hgClear(el){for(const t of el.fl_)clearTimeout(t);el.fl_=[];clearTimeout(el.pt);el.pm=0;el.querySelectorAll(".hgd").forEach(x=>{if(x!==el.D)x.remove()})}
+function hgLaunch(el,n){const o=new Set(hgO[0].slice(0,HS-n-1));hgDiff(el.TC,el.ts,o,hgRT,0,0);el.ts=o;
+ hgDrop(el,hgO[1][n],()=>{if(el.fl)return;const i=hgO[1][n];if(el.bs.has(i))return;const nb=new Set(el.bs);nb.add(i);hgDiff(el.BC,el.bs,nb,hgRB,0,0);el.bs=nb})}
+/* grains are released one at a time from a queue, so catching up never dumps sand into the pile */
+function hgPump(el){if(el.pm)return;el.pm=1;
+ const step=()=>{const q=el.L-el.nx;if(q<=0){el.pm=0;return}hgLaunch(el,el.nx++);el.pt=setTimeout(step,Math.max(35,Math.min(120,250/q)))};step()}
+function hgApply(el,st,p,m,run,hard){const M=st?Math.min(HS,Math.floor(p*HS+1e-6)):HS;el.dataset.m=m;
+ if(hard||!run||!st||M<el.L||M-el.nx>40){hgClear(el);el.L=el.nx=M;hgPut(el,HS-M,M,{});return}
+ el.L=M;if(el.nx<M)hgPump(el)}
+function hgSet(el,st,p,m,run){el.classList.add("ns");hgApply(el,st,p,m,run,1);void el.offsetWidth;el.classList.remove("ns")}
+function hgSnap(el){const w=el.w;w.style.transition="none";w.style.transform="";void w.offsetWidth;w.style.transition="";w.style.transitionDuration=""}
+function hgR(k){if(k==="hourglass")$("#hgc").s=void 0}
+/* hourglass: start/reset flip the glass 180deg, cells cascade down under gravity; finish spins into the break colour */
+function hgFlip(el,run,m){hgClear(el);{const M=el.nx;hgPut(el,HS-M,M,{})}el.fl=1;el.L=el.nx=0;el.w.style.transform="rotate(180deg)";
+ if(!run){/* reset: while the glass spins, the sand in the lower chamber falls back through the neck into the upper one (glass frame), finishing before the spin ends */
+  const E=el.bs.size,d=Math.min(2.5,380/Math.max(1,E)),dn=[...el.bs].sort((x,y)=>hgRB[y]-hgRB[x]),up=hgO[0].filter(i=>!el.ts.has(i));
+  el.classList.remove("ns");
+  dn.forEach((i,k)=>{const e=el.BC[i].style;e.transitionDuration=".18s";e.transitionDelay=k*d+"ms";el.BC[i].classList.remove("on")});
+  up.slice(0,E).forEach((i,k)=>{const e=el.TC[i].style;e.transitionDuration=".18s";e.transitionDelay=(k*d+150)+"ms";el.TC[i].classList.add("on")});
+  el.ts=new Set([...el.ts,...up.slice(0,E)]);el.bs=new Set()}
+ setTimeout(()=>{hgSnap(el);el.classList.add("ns");
+  const t=new Set([...el.bs].map(i=>GG-1-i)),b=new Set([...el.ts].map(i=>GG-1-i));hgDiff(el.TC,el.ts,t,hgRT,0,0);hgDiff(el.BC,el.bs,b,hgRB,0,0);el.ts=t;el.bs=b;
+  void el.offsetWidth;el.classList.remove("ns");el.classList.add("cs");hgPut(el,t.size,b.size,{cas:1});
+  setTimeout(()=>{
+   if(run){el.classList.remove("cs");el.fl=0;el.s=1;hg();return}
+   const fin=()=>{el.classList.remove("cs");hgSet(el,0,1,m,0);el.fl=0;el.s=void 0;el.L=el.nx=HS;hg()};
+   fin()},60)},780)}
+function hg(){const el=$("#hgc");if(!el.TC||el.fl)return;
+ const[e,D]=tprog(),p=Math.min(1,e/D),st=S.running||S.rem<D?1:0,m=S.mode,o=el.s,om=el.m,pl=el.p,an=o!==void 0&&!RM.matches&&!document.hidden&&el.offsetWidth>0;
+ el.s=st;el.m=m;el.p=st?p:0;
+ if(!an){hgSet(el,st,p,m,S.running);return}
+ if(st&&!o)hgFlip(el,1,m);
+ else if(!st&&o&&m!==om&&pl>.95){hgSet(el,0,1,om,0);el.fl=1;el.w.style.transitionDuration="1.2s";el.w.style.transform="rotate(360deg)";
+  setTimeout(()=>{el.dataset.m=m},380);
+  setTimeout(()=>{hgSnap(el);el.fl=0;el.s=void 0;hg()},1250)}
+ else if(!st&&o){setTimeout(()=>{el.dataset.m=m},380);hgFlip(el,0,m)}
+ else hgApply(el,st,p,m,S.running)}
 function swapStyle(k){const tm=$("#time"),h=document.documentElement;
- if(RM.matches){h.dataset.cs=k;center();draw(draw.n,true);return}
+ if(RM.matches){h.dataset.cs=k;hgR(k);center();draw(draw.n,true);return}
  tm.classList.add("sw");
- setTimeout(()=>{h.dataset.cs=k;center();draw(draw.n,true);void tm.offsetWidth;tm.classList.remove("sw")},90)}
+ setTimeout(()=>{h.dataset.cs=k;hgR(k);center();draw(draw.n,true);void tm.offsetWidth;tm.classList.remove("sw")},90)}
 function unhold(){$("#time").classList.remove("hold")}
 function flip(t,f){const el=$("#fxc");if(el.T)flipSet(el,t,!f&&!RM.matches&&!document.hidden)}
 const pk=document.createElement("div");pk.id="pk";
@@ -410,10 +485,10 @@ addEventListener("keydown",e=>{if(e.key==="Escape")shut()});
 function pick(){
  if(S.running)return;
  const t=draw.n||"25:00";
- pr.innerHTML=STY.map(s=>`<button class="pkc${S.cs===s[0]?" on":""}" data-s="${s[0]}" aria-label="${s[1]}"><div class="pkv">${s[0]==="flip"?'<div class="fxc"></div>':"<canvas></canvas>"}</div><b>${s[1]}</b></button>`).join("");
+ pr.innerHTML=STY.map(s=>`<button class="pkc${S.cs===s[0]?" on":""}" data-s="${s[0]}" aria-label="${s[1]}"><div class="pkv">${s[0]==="flip"?'<div class="fxc"></div>':s[0]==="hourglass"?'<div class="hgc"></div>':"<canvas></canvas>"}</div><b>${s[1]}</b></button>`).join("");
  pk.classList.add("on");
  pr.querySelectorAll(".pkc").forEach(b=>{const k=b.dataset.s,p=b.querySelector(".pkv").firstChild;
-  if(k==="flip"){mkFlip(p);flipSet(p,t,false)}else if(k==="tetris")tet(p,window.devicePixelRatio||1,1500*23.5/42,1500,tetPal(),DC[1]);else dots(p,t,window.devicePixelRatio||1,DC[0],DC[1]);
+  if(k==="flip"){mkFlip(p);flipSet(p,t,false)}else if(k==="hourglass"){mkHg(p);p.TC.concat(p.BC).forEach((c,i)=>{const j=i%GG,r=j/G|0,q=j%G;c.classList.add(r%3===1&&q%3===1?"hy":"hx")});hgSet(p,0,1,S.mode,0)}else if(k==="tetris")tet(p,window.devicePixelRatio||1,1500*23.5/42,1500,tetPal(),DC[1]);else dots(p,t,window.devicePixelRatio||1,DC[0],DC[1]);
   b.onclick=()=>{if(ps.dg)return;hap("tap");pr.querySelectorAll(".pkc").forEach(c=>c.classList.toggle("on",c===b));
    if(S.cs!==k){S.cs=k;save();swapStyle(k)}setTimeout(shut,60)}});
  const on=pr.querySelector(".on");if(on)on.scrollIntoView({inline:"center",block:"nearest"})}
@@ -552,7 +627,7 @@ function theme(){
  if(draw.n)draw(draw.n,true)}
 document.querySelectorAll("#tm .tc").forEach(b=>b.onclick=()=>{if(S.theme===b.dataset.t)return;hap("tap");S.theme=b.dataset.t;save();theme()});
 document.querySelectorAll("#thg .tc").forEach(b=>b.onclick=()=>{hap("tap");S.theme="custom";S.ct=b.dataset.c;save();theme()});
-if(!STY.some(x=>x[0]===S.cs))S.cs="dots";document.documentElement.dataset.cs=S.cs;mkFlip($("#fxc"));
+if(!STY.some(x=>x[0]===S.cs))S.cs="dots";document.documentElement.dataset.cs=S.cs;mkFlip($("#fxc"));mkHg($("#hgc"));
 theme();
 sets();
 if(S.running&&S.end<=Date.now())finish(true);else if(S.running)lock();
