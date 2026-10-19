@@ -282,7 +282,7 @@ function beep(){try{ac=ac||new AudioContext();[0,.25,.5,1.2,1.45,1.7,2.4,2.65,2.
 async function lock(){try{if(S.running&&navigator.wakeLock)wl=await navigator.wakeLock.request("screen")}catch(e){}}
 function credit(to){if(S.mode!=="f")return;const ms=Math.max(0,Math.min(to,S.end)-S.seg),k=key();S.days[k]=(S.days[k]||0)+ms/1000}
 const nat=(m,a)=>{try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PremiumHaptics;if(P&&P[m])P[m](a)}catch(e){}};
-const sched=()=>nat("alarm",{at:S.end,title:S.mode==="f"?"Focus complete":"Break over",body:S.mode==="f"?"Nice work. Time for a break.":"Break's over. Back to focus."});
+const sched=()=>nat("alarm",{at:S.end,title:S.mode==="f"?"Focus complete":"Break over",label:S.mode==="f"?"Focus":"Break",body:S.mode==="f"?"Nice work. Time for a break.":"Break's over. Back to focus."});
 function pause(){nat("alarmCancel");if(!S.running)return;const n=Date.now();credit(n);S.rem=Math.max(1,Math.ceil((S.end-n)/1000));S.running=false;try{wl&&wl.release()}catch(e){}save();render()}
 function start(){try{ac=ac||new AudioContext();ac.resume()}catch(e){}const n=Date.now();S.running=true;S.end=n+S.rem*1000;S.seg=n;lock();sched();save();render()}
 function swap(){S.mode=S.mode==="f"?"b":"f";S.rem=dur(S.mode)}

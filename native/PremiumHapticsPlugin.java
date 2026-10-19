@@ -61,7 +61,7 @@ public class PremiumHapticsPlugin extends Plugin {
     // Read as a long: the epoch-ms value arrives as a Long, which PluginCall.getDouble() silently drops.
     long at = call.getData().optLong("at", 0);
     if (at <= 0) return;
-    TimerAlarmReceiver.schedule(c, at, call.getString("title", "Timer finished"), call.getString("body", ""));
+    TimerAlarmReceiver.schedule(c, at, call.getString("title", "Timer finished"), call.getString("body", ""), call.getString("label", "Timer running"));
   }
 
   @PluginMethod(returnType = PluginMethod.RETURN_NONE)

@@ -40,7 +40,10 @@ public class TimerAlarmReceiver extends BroadcastReceiver {
     return PendingIntent.getBroadcast(c, 1, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
   }
 
-  static void schedule(Context c, long at, String title, String body) {
+  static void schedule(Context c, long at, String title, String body, String label) {
+    try {
+      c.startForegroundService(new Intent(c, TimerService.class).putExtra("at", at).putExtra("label", label));
+    } catch (Exception ignored) {}
     AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
     if (am == null) return;
     PendingIntent pi = alarmIntent(c, title, body);
@@ -61,6 +64,7 @@ public class TimerAlarmReceiver extends BroadcastReceiver {
   static void cancel(Context c, boolean clearNotif) {
     AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
     if (am != null) am.cancel(alarmIntent(c, "", ""));
+    c.stopService(new Intent(c, TimerService.class));
     if (!clearNotif) return;
     NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
     if (nm != null) nm.cancel(NOTIF_ID);
@@ -68,6 +72,7 @@ public class TimerAlarmReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context c, Intent in) {
+    c.stopService(new Intent(c, TimerService.class));
     if (MainActivity.inForeground) return; // app is open: the in-app beep and buzz already handle it
     ensureChannel(c);
     NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
